@@ -5,7 +5,8 @@ const {
   createRef,
   formatComments,
 } = require('./utils');
-
+const ENV = process.env.NODE_ENV || 'development';
+const {topicData, userData, articleData, commentData } = require(`../data/${ENV}-data/index.js`)
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db
     .query(`DROP TABLE IF EXISTS comments;`)
