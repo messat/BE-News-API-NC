@@ -50,3 +50,21 @@ describe('Core Task 2: GET /api/topics', () => {
     });
 });
 
+describe('Core Task 3: GET request /api', () => {
+    test('Status 200: An object describing all the available endpoints on this API - extensive use of jest Extender functionality', () => {
+        return request(app)
+               .get('/api')
+               .expect(200)
+               .then(({body})=>{
+                const endpointInformation = body.endpoints
+                expect(typeof endpointInformation).toBe('object')
+                  expect(endpointInformation['GET /api']).toHaveProperty('description')
+                  expect(endpointInformation['GET /api']['description']).toBeString()
+                  expect(endpointInformation['GET /api/topics']).toContainAnyKeys(['queries'])
+                  expect(endpointInformation['GET /api/topics']['exampleResponse']['topics'][0]).toBeObject()
+                  expect(endpointInformation['GET /api/topics']['exampleResponse']).toHaveProperty('topics')
+                  expect(endpointInformation['GET /api/articles']['queries']).toHaveLength(4)
+                  expect(endpointInformation['GET /api/topics']['exampleResponse']['topics'][0]).toContainValue('football')
+               })
+    });
+});
