@@ -1,4 +1,4 @@
-const {selectAllTopics, selectAllEndpoints} = require('../models/api.model')
+const {selectAllTopics, selectAllEndpoints, selectArticleById} = require('../models/api.model')
 exports.getAllTopics = (req,res)=>{
     selectAllTopics()
     .then((topics)=>{
@@ -7,11 +7,23 @@ exports.getAllTopics = (req,res)=>{
 }
 
 exports.noEndpoint = (req,res)=>{
-    res.status(404).send({msg: '404 Not Found'})
+    res.status(404).send({msg: '404 Route Not Found'})
 }
 
 exports.getAllEndpoints = (req,res)=>{
     selectAllEndpoints().then((endpoints)=>{
         res.status(200).send({endpoints})
+    }).catch((err)=>{
+        next(err)
+    })
+}
+
+exports.getArticleById = (req,res, next)=>{
+    const {article_id} = req.params
+    selectArticleById(article_id).then((article)=>{
+        res.status(200).send({article})
+    })
+    .catch((err)=>{
+        next(err)
     })
 }

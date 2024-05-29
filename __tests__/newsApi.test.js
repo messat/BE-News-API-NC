@@ -3,6 +3,7 @@ const request = require('supertest')
 const app = require('../app')
 const seed = require('../db/seeds/seed')
 const data = require('../db/data/test-data/index')
+const endpointJson = require('../endpoints.json')
 
 beforeEach(()=>{
     return seed(data)
@@ -40,12 +41,24 @@ describe('Core Task 2: GET /api/topics', () => {
                   ])
                })
     });
+  
+});
+
+describe('Core Task 2: GET /api/topics handling endpoint errors', () => {
     test('Status 404: GET request with an invalid endpoint', () => {
         return request(app)
                .get('/api/toppic')
                .expect(404)
                .then((res)=>{
-                 expect(res.body.msg).toBe('404 Not Found')
+                 expect(res.body.msg).toBe('404 Route Not Found')
+               })
+    });
+    test('Status 404: POST request with an invalid endpoint and http request method', () => {
+        return request(app)
+               .post('/api/apple')
+               .expect(404)
+               .then((res)=>{
+                 expect(res.body.msg).toBe('404 Route Not Found')
                })
     });
 });
@@ -61,10 +74,62 @@ describe('Core Task 3: GET request /api', () => {
                   expect(endpointInformation['GET /api']).toHaveProperty('description')
                   expect(endpointInformation['GET /api']['description']).toBeString()
                   expect(endpointInformation['GET /api/topics']).toContainAnyKeys(['queries'])
-                  expect(endpointInformation['GET /api/topics']['exampleResponse']['topics'][0]).toBeObject()
-                  expect(endpointInformation['GET /api/topics']['exampleResponse']).toHaveProperty('topics')
                   expect(endpointInformation['GET /api/articles']['queries']).toHaveLength(4)
                   expect(endpointInformation['GET /api/topics']['exampleResponse']['topics'][0]).toContainValue('football')
+                  expect(endpointInformation['GET /api/articles']).toMatchObject({
+                    description: expect.any(String),
+                    queries: expect.any(Object),
+                    exampleResponse: expect.any(Object)
+                  })
+                  expect(endpointInformation).toEqual(endpointJson)
+               })
+    });
+});
+
+describe('CORE Task 4: GET request /api/articles/:article_id', () => {
+    test('Status 200: GET request when passed with parameter fetches the article by Id', () => {
+        return request(app)
+               .get('/api/articles/1')
+               .expect(200)
+               .then((res)=>{
+                const articleObj = res.body.article
+                expect(articleObj.article_id).toBe(1)
+                expect(articleObj).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    body: expect.any(String),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String)
+                })
+                expect(articleObj).toEqual({
+                  article_id: 1,
+                  title: 'Living in the shadow of a great man',
+                  topic: 'mitch',
+                  author: 'butter_bridge',
+                  body: 'I find this existence challenging',
+                  created_at: '2020-07-09T20:11:00.000Z',
+                  votes: 100,
+                  article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                })
+               })
+    });
+    test('Status 404: GET request when passed with parameter fetches returns a message with ID not found', () => {
+        return request(app)
+               .get('/api/articles/800')
+               .expect(404)
+               .then((res)=>{
+                expect(res.body.msg).toBe('404 Not Found')
+               })
+    });
+    test('Status 400: GET request when passed with parametric endpoint that does not match the data type conveys message - bad request', () => {
+        return request(app)
+               .get('/api/articles/banana')
+               .expect(400)
+               .then((res)=>{
+                expect(res.body.msg).toBe('400 Invalid Input')
                })
     });
 });
