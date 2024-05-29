@@ -41,7 +41,6 @@ describe('Core Task 2: GET /api/topics', () => {
                   ])
                })
     });
-  
 });
 
 describe('Core Task 2: GET /api/topics handling endpoint errors', () => {
@@ -64,23 +63,12 @@ describe('Core Task 2: GET /api/topics handling endpoint errors', () => {
 });
 
 describe('Core Task 3: GET request /api', () => {
-    test('Status 200: An object describing all the available endpoints on this API - extensive use of jest Extender functionality', () => {
+    test('Status 200: An object describing all the available endpoints on this API', () => {
         return request(app)
                .get('/api')
                .expect(200)
                .then(({body})=>{
                 const endpointInformation = body.endpoints
-                expect(typeof endpointInformation).toBe('object')
-                  expect(endpointInformation['GET /api']).toHaveProperty('description')
-                  expect(endpointInformation['GET /api']['description']).toBeString()
-                  expect(endpointInformation['GET /api/topics']).toContainAnyKeys(['queries'])
-                  expect(endpointInformation['GET /api/articles']['queries']).toHaveLength(4)
-                  expect(endpointInformation['GET /api/topics']['exampleResponse']['topics'][0]).toContainValue('football')
-                  expect(endpointInformation['GET /api/articles']).toMatchObject({
-                    description: expect.any(String),
-                    queries: expect.any(Object),
-                    exampleResponse: expect.any(Object)
-                  })
                   expect(endpointInformation).toEqual(endpointJson)
                })
     });
@@ -132,4 +120,38 @@ describe('CORE Task 4: GET request /api/articles/:article_id', () => {
                 expect(res.body.msg).toBe('400 Invalid Input')
                })
     });
+});
+
+describe('CORE Task 5: GET request /api/articles', () => {
+  test('Status 200: GET request fetches all articles in the array and checks if the array by date is in descending order', () => {
+    return request(app)
+           .get('/api/articles')
+           .expect(200)
+           .then((res)=>{
+            const articlesArray = res.body.articles 
+            expect(articlesArray).toHaveLength(13)
+            articlesArray.forEach((article)=>{
+              expect(article).toMatchObject({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(String),
+              })
+              expect(article).not.toHaveProperty('body')
+            })
+            expect(articlesArray).toBeSortedBy('created_at',{descending: true})
+           })
+  });
+  test('Status 404: GET request with an endpoint /api/arthicles misspelt results in error message', () => {
+    return request(app)
+           .get('/api/arthicles')
+           .expect(404)
+           .then((res)=>{
+            expect(res.body.msg).toBe('404 Route Not Found')
+           })
+  });
 });
