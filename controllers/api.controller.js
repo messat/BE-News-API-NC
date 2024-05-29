@@ -1,4 +1,4 @@
-const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles} = require('../models/api.model')
+const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId} = require('../models/api.model')
 exports.getAllTopics = (req,res)=>{
     selectAllTopics()
     .then((topics)=>{
@@ -10,7 +10,7 @@ exports.noEndpoint = (req,res)=>{
     res.status(404).send({msg: '404 Route Not Found'})
 }
 
-exports.getAllEndpoints = (req,res)=>{
+exports.getAllEndpoints = (req,res, next)=>{
     selectAllEndpoints().then((endpoints)=>{
         res.status(200).send({endpoints})
     }).catch((err)=>{
@@ -28,9 +28,22 @@ exports.getArticleById = (req,res, next)=>{
     })
 }
 
-exports.getAllArticles = (req, res, next)=>{
-    
+exports.getAllArticles = (req, res, next)=>{ 
     selectAllArticles().then((articles)=>{
        res.status(200).send({articles})
+    })
+    .catch((err)=>{
+       next(err)
+    })
+}
+
+exports.getCommentsByArticleId = (req,res,next)=>{
+    const {article_id}= req.params
+    selectCommentsByArticleId(article_id)
+    .then((comments)=>{
+     res.status(200).send({comments})
+    })
+    .catch((err)=>{
+        next(err)
     })
 }
