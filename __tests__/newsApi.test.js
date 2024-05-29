@@ -155,3 +155,43 @@ describe('CORE Task 5: GET request /api/articles', () => {
            })
   });
 });
+
+describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
+  test('Status 200: GET request to fetch all comments from a requested article_id and is ordered by most recent first', () => {
+    return request(app)
+           .get('/api/articles/1/comments')
+           .expect(200)
+           .then((res)=>{
+            const commentsIdArray = res.body.comments
+            expect(commentsIdArray).toHaveLength(11)
+            commentsIdArray.forEach((comment)=>{
+              expect(comment).toMatchObject({
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+              })
+            })
+            expect(commentsIdArray).toBeSortedBy('created_at', {descending: true})
+           })
+  });
+  test('Status 200: GET request with an article_id that does not exist in the comments table but exist in articles id - foreign key - returns an empty array', () => {
+    return request(app)
+           .get('/api/articles/2/comments')
+           .expect(200)
+           .then((res)=>{
+            const commentsIdArray = res.body.comments
+            expect(commentsIdArray).toEqual([])
+           })
+  });
+  test('Status 404: GET request with an article_id that does not exist in the comments table and does not exist in the articles table', () => {
+    return request(app)
+           .get('/api/articles/800/comments')
+           .expect(404)
+           .then((res)=>{
+            expect(res.body.msg).toBe('404 Not Found')
+           })
+  });
+});
