@@ -94,3 +94,16 @@ exports.updateVotesByArticleId = (article_id, newVotes)=>{
         return response.rows[0]
     })
 }
+
+exports.deleteCommentById =(comment_id)=>{
+    return db.query(`SELECT * FROM comments WHERE comment_id = $1`, [comment_id])
+    .then((data)=>{
+        const filterCommentsById = data.rows
+        if(filterCommentsById.length){
+           
+            return db.query(`DELETE FROM comments WHERE comment_id = $1`, [comment_id])
+        } else {
+            return Promise.reject({status: 404, msg: '404 ID does not exist'})
+        }
+    })
+}
