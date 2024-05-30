@@ -3,6 +3,7 @@ const fs = require('fs/promises')
 const format = require('pg-format');
 
 const {selectCommentsByIdExists} = require('./checkExists.model.js');
+const { response } = require('../app.js');
 exports.selectAllTopics = ()=>{
     return db.query('SELECT * FROM topics;')
     .then((data)=>{
@@ -73,4 +74,23 @@ exports.insertNewComment= (article_id, newComment)=>{
     .then((data)=>{
         return data.rows[0]
     })   
+}
+
+exports.updateVotesByArticleId = (article_id, newVotes)=>{
+    return db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
+    .then((data)=>{
+        const filterArticleById = data.rows.length
+        if(filterArticleById){
+            if(typeof newVotes.inc_votes === 'number'){
+                return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`, [newVotes.inc_votes, article_id])
+            } else {
+                return Promise.reject({status: 400, msg: '400 Bad Request'})
+            }
+        } else {
+            return Promise.reject({status: 404, msg: '404 Not Found'})
+        }
+    })
+    .then((response)=>{
+        return response.rows[0]
+    })
 }

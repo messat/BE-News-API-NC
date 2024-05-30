@@ -60,5 +60,41 @@
       ]
         }
       
-    }
+    },
+    "POST /api/articles/:article_id/comments": {
+      "description": "Adds a comment to the requested article ID in the array with array",
+      "queries": ["article_id", "newComment"],
+      "exampleResponse" : {
+        "comments": [
+          {
+            "comment_id": 19,
+            "body": "I wake up in the morning thinking why do I even bother",
+            "article_id": 1,
+            "author": "butter_bridge",
+            "votes": 0,
+            "created_at": "2020-10-31T03:03:00.000Z"
+          }
+        ]
+          }
+        
+      },
+      "PATCH /api/articles/:article_id": {
+        "description": "Updates the votes count in the article table requested by article_id",
+        "queries": ["article_id", "newVotes"],
+        "exampleResponse" : {
+          "article": [
+            {
+              "article_id": 1,
+              "title": "Living in the shadow of a great man",
+              "topic": "mitch",
+              "author": "butter_bridge",
+              "body": "I find this existence challenging",
+              "created_at": "2020-07-09T20:11:00.000Z",
+              "votes": 19,
+              "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            }
+          ]
+            }
+          
+        }
   }

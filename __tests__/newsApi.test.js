@@ -128,7 +128,7 @@ describe('CORE Task 5: GET request /api/articles', () => {
            .get('/api/articles')
            .expect(200)
            .then((res)=>{
-            const articlesArray = res.body.articles 
+            const articlesArray = res.body.articles
             expect(articlesArray).toHaveLength(13)
             articlesArray.forEach((article)=>{
               expect(article).toMatchObject({
@@ -194,9 +194,17 @@ describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
             expect(res.body.msg).toBe('404 Not Found')
            })
   });
+  test('Status 400: GET request with an article_id but does not follow schema validation - incorrect data type - string', () => {
+    return request(app)
+           .get('/api/articles/not-a-number/comments')
+           .expect(400)
+           .then((res)=>{
+            expect(res.body.msg).toBe('400 Invalid Input')
+           })
+  });
 });
 
-describe('CORE Task 7: GET request /api/articles/:article_id/comments', () => {
+describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
   test('Status 201: POST request to send body and add the comment article in the database governed by the article_id requested', () => {
    const newUser = {
     username: 'butter_bridge',
@@ -258,3 +266,96 @@ describe('CORE Task 7: GET request /api/articles/:article_id/comments', () => {
             })
    });
 });
+
+describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
+  test('Status 200: PATCH request updates the votes field by the requested article_id', () => {
+    const updateVotes = {
+      inc_votes : 1 
+    }
+     return request(app)
+            .patch('/api/articles/1')
+            .send(updateVotes)
+            .expect(200)
+            .then((res)=>{
+              const articleIdObj = res.body.article
+             expect(articleIdObj).toEqual({
+              article_id: 1,
+              title: 'Living in the shadow of a great man',
+              topic: 'mitch',
+              author: 'butter_bridge',
+              body: 'I find this existence challenging',
+              created_at: '2020-07-09T20:11:00.000Z',
+              votes: 101,
+              article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+            })
+            })
+   });
+   test('Status 200: PATCH request updates the votes is deducted by the requested article_id', () => {
+    const updateVotes = {
+      inc_votes : -81 
+    }
+     return request(app)
+            .patch('/api/articles/1')
+            .send(updateVotes)
+            .expect(200)
+            .then((res)=>{
+              const articleIdObj = res.body.article
+             expect(articleIdObj).toEqual({
+              article_id: 1,
+              title: 'Living in the shadow of a great man',
+              topic: 'mitch',
+              author: 'butter_bridge',
+              body: 'I find this existence challenging',
+              created_at: '2020-07-09T20:11:00.000Z',
+              votes: 19,
+              article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+            })
+            })
+   });
+   test('Status 404: PATCH request responds with an error message and status code when article_id does not exist', () => {
+    const updateVotes = {
+      inc_votes : 1 
+    }
+     return request(app)
+            .patch('/api/articles/1500')
+            .send(updateVotes)
+            .expect(404)
+            .then((res)=>{
+              expect(res.body.msg).toBe('404 Not Found')
+            })
+   });
+   test('Status 400: PATCH request responds with an error message and status code when article_id exist but the object updates votes does not have the correct data type', () => {
+    const updateVotes = {
+      inc_votes : 'one'
+    }
+     return request(app)
+            .patch('/api/articles/1')
+            .send(updateVotes)
+            .expect(400)
+            .then((res)=>{
+              expect(res.body.msg).toBe('400 Bad Request')
+            })
+   });
+   test('Status 400: PATCH request responds with an error message and status code when article_id exist but the object does not follow schema validation', () => {
+    const updateVotes = {
+      countVotes : 1
+    }
+     return request(app)
+            .patch('/api/articles/1')
+            .send(updateVotes)
+            .expect(400)
+            .then((res)=>{
+              expect(res.body.msg).toBe('400 Bad Request')
+            })
+   });
+   test('Status 400: PATCH request responds with an error message and status code when article_id exist but the object is empty', () => {
+    const updateVotes = {}
+     return request(app)
+            .patch('/api/articles/3')
+            .send(updateVotes)
+            .expect(400)
+            .then((res)=>{
+              expect(res.body.msg).toBe('400 Bad Request')
+            })
+   });
+  });

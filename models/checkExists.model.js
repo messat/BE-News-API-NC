@@ -6,3 +6,4 @@ exports.selectCommentsByIdExists = (article_id)=>{
        return data.rows
     })
 }
+
