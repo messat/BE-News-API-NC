@@ -361,7 +361,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
   });
 
 describe('CORE Task 9: DELETE request /api/comments/:comment_id', () => {
-    test('Status 204: DELETE requests to delete the comment by given comment_id and sends no body back', () => {
+    test('Status 204: DELETE request to delete the comment by given comment_id and sends no body back', () => {
       return request(app)
             .delete('/api/comments/1')
             .expect(204)
@@ -383,3 +383,30 @@ describe('CORE Task 9: DELETE request /api/comments/:comment_id', () => {
         });
       })
 });
+
+describe('CORE Task 10: GET request /api/users', () => {
+  test('Status 200: GET request returns all users in the array', () => {
+    return request(app)
+          .get('/api/users')
+          .expect(200)
+          .then((res)=>{
+           const usersArray = res.body.users
+           expect(usersArray).toHaveLength(4)
+           usersArray.forEach((user)=>{
+            expect(user).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String)
+            })
+           })
+          })
+  });
+  test('Status 404: GET request with an endpoint /api/user misspelt results in error message', () => {
+    return request(app)
+           .get('/api/user')
+           .expect(404)
+           .then((res)=>{
+            expect(res.body.msg).toBe('404 Route Not Found')
+           })
+  });
+})

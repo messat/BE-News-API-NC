@@ -107,3 +107,10 @@ exports.deleteCommentById =(comment_id)=>{
         }
     })
 }
+
+exports.selectAllUsers = ()=>{
+    return db.query('SELECT * FROM users')
+    .then((data)=>{
+        return data.rows
+    })
+}
