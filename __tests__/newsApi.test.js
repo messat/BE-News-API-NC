@@ -195,3 +195,66 @@ describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
            })
   });
 });
+
+describe('CORE Task 7: GET request /api/articles/:article_id/comments', () => {
+  test('Status 201: POST request to send body and add the comment article in the database governed by the article_id requested', () => {
+   const newUser = {
+    username: 'butter_bridge',
+    body: 'I wake up in the morning thinking why do I even bother'
+   }
+    return request(app)
+           .post('/api/articles/1/comments')
+           .send(newUser)
+           .expect(201)
+           .then((res)=>{
+            expect(res.body.comment.author).toBe('butter_bridge')
+            expect(res.body.comment.body).toBe('I wake up in the morning thinking why do I even bother')
+            expect(res.body.comment).toEqual({
+              comment_id: 19,
+              body: 'I wake up in the morning thinking why do I even bother',
+              article_id: 1,
+              author: 'butter_bridge',
+              votes: 0,
+              created_at: expect.any(String)
+            })
+           })
+  });
+  test('Status 400: POST request displays an error message and status code when the body does not have username', () => {
+    const newUser = {
+    body: 'Nice English Tea'
+    }
+     return request(app)
+            .post('/api/articles/1/comments')
+            .send(newUser)
+            .expect(400)
+            .then((res)=>{
+             expect(res.body.msg).toBe('400 Bad Request')
+            })
+   });
+   test('Status 404: POST request responds with an error message and status code when article_id does not exist', () => {
+    const newUser = {
+    username: 'butter_bridge',
+     body: 'I love toasts only in the morning'
+    }
+     return request(app)
+            .post('/api/articles/800/comments')
+            .send(newUser)
+            .expect(404)
+            .then((res)=>{
+             expect(res.body).toEqual({status: 404, msg: '404 Not Found'})
+            })
+   });
+   test('Status 401: POST request responds with an error message and status code when username does not exist', () => {
+    const newUser = {
+      username: 'Muhammad',
+     body: 'King of Wall Street'
+    }
+     return request(app)
+            .post('/api/articles/1/comments')
+            .send(newUser)
+            .expect(401)
+            .then((res)=>{
+             expect(res.body.msg).toBe('401 Not Authenticated')
+            })
+   });
+});
