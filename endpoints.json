@@ -96,5 +96,9 @@
           ]
             }
           
-        }
+        },
+        "DELETE /api/comments/:comment_id": {
+          "description": "Deletes the row with the given comment_id in the url and no body is sent back as it is deleted",
+          "queries": ["comment_id"] 
+          }
   }

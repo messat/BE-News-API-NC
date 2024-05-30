@@ -359,3 +359,27 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             })
    });
   });
+
+describe('CORE Task 9: DELETE request /api/comments/:comment_id', () => {
+    test('Status 204: DELETE requests to delete the comment by given comment_id and sends no body back', () => {
+      return request(app)
+            .delete('/api/comments/1')
+            .expect(204)
+    });
+    test('Status 404: DELETE request responds with an appropriate status and error message when given a non-existent id', () => {
+      return request(app)
+            .delete('/api/comments/786')
+            .expect(404)
+            .then((res)=>{
+              expect(res.body.msg).toBe('404 ID does not exist')
+            })
+    });
+    test('Status 400: DELETE request responds with an appropriate status and error message when given an invalid id', () => {
+      return request(app)
+        .delete('/api/comments/not-a-number')
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe('400 Invalid Input');
+        });
+      })
+});

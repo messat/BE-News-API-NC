@@ -1,4 +1,4 @@
-const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId} = require('../models/api.model')
+const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById} = require('../models/api.model')
 exports.getAllTopics = (req,res)=>{
     selectAllTopics()
     .then((topics)=>{
@@ -67,5 +67,15 @@ exports.fetchArticleById = (req,res,next)=>{
     })
     .catch((err)=>{
         next(err)
+    })
+}
+
+exports.getCommentById = (req,res,next)=>{
+    const {comment_id} = req.params
+    deleteCommentById(comment_id).then(()=>{
+        res.status(204).send()
+    })
+    .catch((err)=>{
+       next(err)
     })
 }
