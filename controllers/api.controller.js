@@ -20,7 +20,9 @@ exports.getAllEndpoints = (req,res, next)=>{
 
 exports.getArticleById = (req,res, next)=>{
     const {article_id} = req.params
-    selectArticleById(article_id).then((article)=>{
+    const {comment_count} =req.query
+    const commentKey = Object.keys(req.query)
+    selectArticleById(article_id, commentKey).then((article)=>{
         res.status(200).send({article})
     })
     .catch((err)=>{
