@@ -29,12 +29,18 @@ exports.getArticleById = (req,res, next)=>{
 }
 
 exports.getAllArticles = (req, res, next)=>{ 
-    selectAllArticles().then((articles)=>{
-       res.status(200).send({articles})
-    })
-    .catch((err)=>{
-       next(err)
-    })
+    const {topic} = req.query
+    const keys = Object.keys(req.query)
+    if(keys.includes('topic') || keys.length === 0){
+        selectAllArticles(topic).then((articles)=>{
+           res.status(200).send({articles})
+        })
+        .catch((err)=>{
+           next(err)
+        })
+    } else {
+        next({status: 404, msg: '404 Not Found'})
+    }
 }
 
 exports.getCommentsByArticleId = (req,res,next)=>{

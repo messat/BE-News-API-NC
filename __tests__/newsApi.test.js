@@ -410,3 +410,45 @@ describe('CORE Task 10: GET request /api/users', () => {
            })
   });
 })
+
+describe('CORE Task 11: GET request /api/articles?topic=mitch', () => {
+  test('Status 200: GET request with query string of topic searched responding with all the given object(s) in array', () => {
+    return request(app)
+    .get('/api/articles?topic=mitch')
+    .expect(200)
+    .then((res)=>{
+      const topicsArr = res.body.articles
+     expect(topicsArr).toHaveLength(12)
+     topicsArr.forEach((topic)=>{
+      expect(topic).toHaveProperty('topic', 'mitch')
+     })
+    })
+  });
+  test('Status 200: GET request fetches all the articles in the array when the query is omitted', () => {
+    return request(app)
+    .get('/api/articles')
+    .expect(200)
+    .then((res)=>{
+      const articlesArr = res.body.articles
+     expect(articlesArr).toHaveLength(13)
+    })
+  });
+  test('Status 200: GET request with a query string that does not match returns an empty array', () => {
+    return request(app)
+    .get('/api/articles?topic=dogs')
+    .expect(200)
+    .then((res)=>{
+      const articlesArr = res.body.articles
+     expect(articlesArr).toHaveLength(0)
+     expect(articlesArr).toEqual([])
+    })
+  });
+  test('Status 404: GET request with a query that does not match the field property i.e. missspelt', () => {
+    return request(app)
+    .get('/api/articles?topicss=mitch')
+    .expect(404)
+    .then((res)=>{
+     expect(res.body.msg).toBe('404 Not Found')
+    })
+  });
+});
