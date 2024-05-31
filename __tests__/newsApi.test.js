@@ -92,16 +92,6 @@ describe('CORE Task 4: GET request /api/articles/:article_id', () => {
                     votes: expect.any(Number),
                     article_img_url: expect.any(String)
                 })
-                expect(articleObj).toEqual({
-                  article_id: 1,
-                  title: 'Living in the shadow of a great man',
-                  topic: 'mitch',
-                  author: 'butter_bridge',
-                  body: 'I find this existence challenging',
-                  created_at: '2020-07-09T20:11:00.000Z',
-                  votes: 100,
-                  article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
-                })
                })
     });
     test('Status 404: GET request when passed with parameter fetches returns a message with ID not found', () => {
@@ -454,9 +444,9 @@ describe('CORE Task 11: GET request /api/articles?topic=mitch', () => {
 });
 
 describe('CORE Task 12: GET request /api/articles/:article_id', () => {
-  test('Status 200: GET request which responds with an object containing total count of all comments with the requested article_id when passed query string of comment_count', () => {
+  test('Status 200: GET request which responds with an object containing total count of all comments with the requested article_id and adds a property comment_count', () => {
     return request(app)
-    .get('/api/articles/1?comment_count')
+    .get('/api/articles/1')
     .expect(200)
     .then((res)=>{
       const articleObj = res.body.article
@@ -484,34 +474,5 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
         comment_count: '11'
       })
     })
-  });
-  test('Status 200: GET request which responds with an object of the requested article_id without the comment_count key if the query string is misspelt', () => {
-    return request(app)
-    .get('/api/articles/1?comment_cout')
-    .expect(200)
-    .then((res)=>{
-      const articleObj = res.body.article
-      expect(articleObj.article_id).toBe(1)
-      expect(articleObj).toMatchObject({
-          author: expect.any(String),
-          title: expect.any(String),
-          article_id: expect.any(Number),
-          body: expect.any(String),
-          topic: expect.any(String),
-          created_at: expect.any(String),
-          votes: expect.any(Number),
-          article_img_url: expect.any(String)
-      })
-      expect(articleObj).toEqual({
-        author: 'butter_bridge',
-        title: 'Living in the shadow of a great man',
-        article_id: 1,
-        topic: 'mitch',
-        body: "I find this existence challenging",
-        created_at: '2020-07-09T20:11:00.000Z',
-        votes: 100,
-        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
-      })
-    })
-  });
-});
+  })
+ })

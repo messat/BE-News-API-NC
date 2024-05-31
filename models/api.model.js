@@ -18,7 +18,7 @@ exports.selectAllEndpoints = ()=>{
     })
 }
 
-exports.selectArticleById = (article_id, commentKey)=>{
+exports.selectArticleById = (article_id)=>{
    return db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
    .then((data)=>{
     if (data.rows.length === 0){
@@ -26,14 +26,8 @@ exports.selectArticleById = (article_id, commentKey)=>{
     } 
     return data
    })
-   .then((data)=>{
-       
-    if(commentKey.includes('comment_count')){
+   .then(()=>{
         return db.query(`SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.body,articles.votes,articles.article_img_url, COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;`, [article_id])
-       } else {
-        return data
-       }
-   
     })
    .then((response)=>{
     return response.rows[0]
