@@ -28,7 +28,7 @@
   },
   "GET /api/articles/:article_id": {
     "description": "Responds with an object from the requested article_id of an array",
-    "queries": ["article_id", "comment_count"],
+    "queries": [],
     "exampleResponse" : {
       "articles": [
         {

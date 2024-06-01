@@ -19,18 +19,13 @@ exports.selectAllEndpoints = ()=>{
 }
 
 exports.selectArticleById = (article_id)=>{
-   return db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
-   .then((data)=>{
-    if (data.rows.length === 0){
-        return Promise.reject({status: 404, msg: '404 Not Found'})
-    } 
-    return data
-   })
-   .then(()=>{
         return db.query(`SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.body,articles.votes,articles.article_img_url, COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;`, [article_id])
-    })
-   .then((response)=>{
-    return response.rows[0]
+        .then((response)=>{
+            const articleIdArray = response.rows
+            if (!articleIdArray.length){
+            return Promise.reject({status: 404, msg: '404 Not Found'})
+             } 
+            return response.rows[0]
    })
 }
 
@@ -39,6 +34,9 @@ exports.selectAllArticles = (topic)=>{
         let sqlString = `SELECT * FROM articles WHERE topic = $1;`
         return db.query(sqlString, [topic])
         .then((data)=>{
+            if(!data.rows.length){
+                return Promise.reject({status: 404, msg: '404 Not Found'})
+            }
             return data.rows
         })
     }
@@ -53,7 +51,8 @@ exports.selectAllArticles = (topic)=>{
 exports.selectCommentsByArticleId =  (article_id)=>{
     return db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
     .then((data)=>{
-        if(data.rows.length){
+        const commentsByArticleId = data.rows
+        if(commentsByArticleId.length){
           return selectCommentsByIdExists(article_id)
         }
         else {
