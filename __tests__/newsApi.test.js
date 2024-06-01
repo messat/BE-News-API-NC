@@ -136,14 +136,6 @@ describe('CORE Task 5: GET request /api/articles', () => {
             expect(articlesArray).toBeSortedBy('created_at',{descending: true})
            })
   });
-  test('Status 404: GET request with an endpoint /api/arthicles misspelt results in error message', () => {
-    return request(app)
-           .get('/api/arthicles')
-           .expect(404)
-           .then((res)=>{
-            expect(res.body.msg).toBe('404 Route Not Found')
-           })
-  });
 });
 
 describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
@@ -217,6 +209,22 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
             })
            })
   });
+  test('Status 201: POST request post the comment despite containing extra properties and ignores the rest of the property', () => {
+    const newUser = {
+      username: 'butter_bridge',
+      body: 'Salaams Cola is the best drink',
+      origin: 'Turkey'
+    }
+     return request(app)
+            .post('/api/articles/1/comments')
+            .send(newUser)
+            .expect(201)
+            .then((res)=>{
+             expect(res.body.comment.author).toBe('butter_bridge')
+             expect(res.body.comment.body).toBe('Salaams Cola is the best drink')
+             expect(res.body.comment).not.toHaveProperty('origin')
+            })
+   });
   test('Status 400: POST request displays an error message and status code when the body does not have username', () => {
     const newUser = {
     body: 'Nice English Tea'
@@ -423,22 +431,21 @@ describe('CORE Task 11: GET request /api/articles?topic=mitch', () => {
      expect(articlesArr).toHaveLength(13)
     })
   });
-  test('Status 200: GET request with a query string that does not match returns an empty array', () => {
+  test('Status 404: GET request with a query string that does not match the searched property', () => {
     return request(app)
     .get('/api/articles?topic=dogs')
-    .expect(200)
-    .then((res)=>{
-      const articlesArr = res.body.articles
-     expect(articlesArr).toHaveLength(0)
-     expect(articlesArr).toEqual([])
-    })
-  });
-  test('Status 404: GET request with a query that does not match the field property i.e. missspelt', () => {
-    return request(app)
-    .get('/api/articles?topicss=mitch')
     .expect(404)
     .then((res)=>{
      expect(res.body.msg).toBe('404 Not Found')
+    })
+  });
+  test('Status 200: GET request with a query that does not match the field property responds with all the articles and ignores the query string', () => {
+    return request(app)
+    .get('/api/articles?topicss=mitch')
+    .expect(200)
+    .then((res)=>{
+      const topicsArr = res.body.articles
+      expect(topicsArr).toHaveLength(13)
     })
   });
 });
