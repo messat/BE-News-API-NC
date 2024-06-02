@@ -483,3 +483,76 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
     })
   })
  })
+ 
+
+ describe('ADAVNCED Task 15: GET  request /api/articles', () => {
+     test('Status 200: GET request using query to sort_by the articles', () => {
+      return request(app)
+            .get('/api/articles?sort_by=author')
+            .expect(200)
+            .then((res)=>{
+            const articlesArr = res.body.articles
+            expect(articlesArr).toBeSortedBy('author', {
+              descending: true
+            })
+    })
+     });
+     test('Status 200: GET request using two queries to sort_by & order the articles', () => {
+      return request(app)
+            .get('/api/articles?sort_by=title&order=asc')
+            .expect(200)
+            .then((res)=>{
+            const articlesArr = res.body.articles
+            expect(articlesArr).toBeSortedBy('title', {
+              ascending: true
+            })
+    })
+     });
+     test('Status 200: GET request using only the order to ascend the articles by the default created_at property', () => {
+      return request(app)
+            .get('/api/articles?order=ASC')
+            .expect(200)
+            .then((res)=>{
+            const articlesArr = res.body.articles
+            expect(articlesArr).toBeSortedBy('created_at', {
+              ascending: true
+            })
+    })
+     });
+     test('Status 200: GET request using three queries', () => {
+      return request(app)
+            .get('/api/articles?order=ASC&sort_by=body&topic=mitch')
+            .expect(200)
+            .then((res)=>{
+            const articlesArr = res.body.articles
+            expect(articlesArr).toBeSortedBy('body', {
+              ascending: true
+            })
+            expect(articlesArr).toHaveLength(12)
+    })
+     });
+     test('Status 404: GET request with one valid query and the other invalid i.e. topic returns an error message', () => {
+      return request(app)
+            .get('/api/articles?order=ASC&topic=mites')
+            .expect(404)
+            .then((res)=>{
+            expect(res.body.msg).toBe('404 Not Found')
+    })
+     });
+     test('Status 400: GET request with invalid order query', () => {
+      return request(app)
+            .get('/api/articles?order=ASCC')
+            .expect(400)
+            .then((res)=>{
+            expect(res.body.msg).toBe('400 Bad Request')
+    })
+     });
+     test('Status 400: GET request with invalid sort_by query', () => {
+      return request(app)
+            .get('/api/articles?sort_by=apples')
+            .expect(400)
+            .then((res)=>{
+            expect(res.body.msg).toBe('400 Bad Request')
+    })
+     });
+ });
