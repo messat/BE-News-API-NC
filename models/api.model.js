@@ -4,6 +4,7 @@ const format = require('pg-format');
 
 const {selectCommentsByIdExists, checkQueryExists} = require('./checkExists.model.js');
 const { response } = require('../app.js');
+const { log } = require('console');
 exports.selectAllTopics = ()=>{
     return db.query('SELECT * FROM topics;')
     .then((data)=>{
@@ -121,4 +122,16 @@ exports.selectAllUsers = ()=>{
     .then((data)=>{
         return data.rows
     })
+}
+
+exports.selectByUserName = (username)=>{
+   let sqlString = 'SELECT * FROM users WHERE username = $1;'
+   const queryValue = [username]
+   return db.query(sqlString, queryValue)
+   .then((data)=>{
+    if(!data.rows.length){
+        return Promise.reject({status: 404, msg: '404 Not Found'})
+    } 
+    return data.rows
+   })
 }

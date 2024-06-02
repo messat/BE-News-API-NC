@@ -556,3 +556,31 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
     })
      });
  });
+
+ 
+ describe('ADAVNCED Task 17: GET  request /api/users/:username', () => {
+     test('Status 200: GET request the user information when entered by username', () => {
+      return request(app)
+      .get('/api/users/icellusedkars')
+      .expect(200)
+      .then((res)=>{
+      const userArr = res.body.user
+      expect(userArr).toHaveLength(1)
+      userArr.forEach((user)=>{
+        expect(user).toMatchObject({
+          username: expect.any(String),
+          avatar_url: expect.any(String),
+          name: expect.any(String)
+        })
+      })
+})
+     });
+     test('Status 404: GET request - the user is not found', () => {
+      return request(app)
+      .get('/api/users/Muhammad')
+      .expect(404)
+      .then((res)=>{
+      expect(res.body.msg).toBe('404 Not Found')
+      })
+     });
+ });
