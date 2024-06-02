@@ -2,7 +2,7 @@ const db = require('../db/connection.js');
 const fs = require('fs/promises')
 const format = require('pg-format');
 
-const {selectCommentsByIdExists} = require('./checkExists.model.js');
+const {selectCommentsByIdExists, checkQueryExists} = require('./checkExists.model.js');
 const { response } = require('../app.js');
 exports.selectAllTopics = ()=>{
     return db.query('SELECT * FROM topics;')
@@ -29,24 +29,18 @@ exports.selectArticleById = (article_id)=>{
    })
 }
 
-exports.selectAllArticles = (topic)=>{
-    if(topic){
-        let sqlString = `SELECT * FROM articles WHERE topic = $1;`
-        return db.query(sqlString, [topic])
-        .then((data)=>{
-            if(!data.rows.length){
-                return Promise.reject({status: 404, msg: '404 Not Found'})
-            }
-            return data.rows
-        })
+exports.selectAllArticles = (topic, sort_by, order)=>{
+     if(topic || sort_by || order){
+        return checkQueryExists(topic, sort_by, order)
+     } 
+        else {
+         return db.query('SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC;')
+         .then((data)=>{
+             return data.rows
+         })
+     }
     }
-    else {
-        return db.query('SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC;')
-        .then((data)=>{
-            return data.rows
-        })
-    }
-}
+
 
 exports.selectCommentsByArticleId =  (article_id)=>{
     return db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
