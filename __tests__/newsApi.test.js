@@ -584,3 +584,47 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
       })
      });
  });
+
+ describe('ADAVNCED Task 18: PATCH request /api/comments/:comment_id', () => {
+     test('Status 200: PATCH request updates the vote count by the given body request', () => {
+      const addVotes = { inc_votes: 5 }
+      return request(app)
+      .patch('/api/comments/3')
+      .send(addVotes)
+      .expect(200)
+      .then((res)=>{
+        expect(res.body.comment.votes).toBe(105)
+      })
+     });
+     test('Status 200: PATCH request deducts the votes', () => {
+      const deductsVotes = { inc_votes: -400 }
+      return request(app)
+      .patch('/api/comments/3')
+      .send(deductsVotes)
+      .expect(200)
+      .then((res)=>{
+        expect(res.body.comment.votes).toBe(-300)
+      })
+     });
+     test('Status 400: PATCH request does not follow the schema validation - string', () => {
+      const addVotes = { inc_votes: 'hello' }
+      return request(app)
+      .patch('/api/comments/3')
+      .send(addVotes)
+      .expect(400)
+      .then((res)=>{
+        expect(res.body.msg).toBe('400 Bad Request')
+      })
+     });
+     test('Status 404: PATCH request comment_id does not exist', () => {
+      const addVotes = { inc_votes: 'hello' }
+      return request(app)
+      .patch('/api/comments/700')
+      .send(addVotes)
+      .expect(404)
+      .then((res)=>{
+        expect(res.body.msg).toBe('404 Not Found')
+      })
+     });
+    
+ });
