@@ -1,8 +1,11 @@
 const express = require('express')
-const { getAllArticles, getArticleById, getCommentsByArticleId, postCommentByArticleId, fetchArticleById } = require('../controllers/api.controller')
+const { getAllArticles, getArticleById, getCommentsByArticleId, postCommentByArticleId, fetchArticleById,postNewArticle} = require('../controllers/api.controller')
 const articlesRouter = express.Router()
 
-articlesRouter.get('/', getAllArticles)
+articlesRouter
+    .route('/')
+    .get(getAllArticles)
+    .post(postNewArticle)           
 
 articlesRouter
     .route('/:article_id')

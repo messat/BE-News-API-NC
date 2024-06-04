@@ -234,7 +234,7 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
             .send(newUser)
             .expect(400)
             .then((res)=>{
-             expect(res.body.msg).toBe('400 Bad Request')
+             expect(res.body.msg).toBe('400 Invalid Input')
             })
    });
    test('Status 404: POST request responds with an error message and status code when article_id does not exist', () => {
@@ -250,17 +250,17 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
              expect(res.body).toEqual({status: 404, msg: '404 Not Found'})
             })
    });
-   test('Status 401: POST request responds with an error message and status code when username does not exist', () => {
+   test('Status 400: POST request responds with an error message and status code when username does not exist', () => {
     const newUser = {
-      username: 'Muhammad',
+     username: 'Muhammad',
      body: 'King of Wall Street'
     }
      return request(app)
             .post('/api/articles/1/comments')
             .send(newUser)
-            .expect(401)
+            .expect(400)
             .then((res)=>{
-             expect(res.body.msg).toBe('401 Not Authenticated')
+             expect(res.body.msg).toBe('400 Invalid Input')
             })
    });
 });
@@ -626,5 +626,76 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
         expect(res.body.msg).toBe('404 Not Found')
       })
      });
-    
  });
+
+
+ describe('ADAVNCED Task 19: POST request /api/articles', () => {
+  test('Status 201: POST request to add new article', () => {
+    const newArticle = {
+      author: 'lurker',
+      title: 'Wolf of Apple',
+      body: 'If there is iota of goodness, then act up on it', 
+      topic: 'paper',
+      article_img_url: 'https://www.tradingview.com/symbols/NASDAQ-AAPL/'
+    }
+     return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(201)
+            .then(({body})=>{
+            const articleIdObj = body.article
+             expect(articleIdObj).toMatchObject({
+              article_id: 14,
+              title: 'Wolf of Apple',
+              topic: 'paper',
+              author: 'lurker',
+              body: 'If there is iota of goodness, then act up on it',
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: 'https://www.tradingview.com/symbols/NASDAQ-AAPL/',
+              comment_count: expect.any(String)
+            })
+            })
+   });
+   test('Status 400: POST request displays an error message and status code when the body does not fulfill the criteria of articles table', () => {
+    const newArticle = {
+      title: 'Wolf of Apple',
+      body: 'If there is iota of goodness, then act up on it', 
+      topic: 'paper',
+    }
+     return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(400)
+            .then((res)=>{
+             expect(res.body.msg).toBe('400 Invalid Input')
+            })
+   });
+   test('Status 400: POST request responds with an error message and status code when author violates the key constraint', () => {
+    const newArticle = {
+      author: 'Muhammad',
+      title: 'Wolf of Apple',
+      body: 'If there is iota of goodness, then act up on it', 
+      topic: 'paper',
+      article_img_url: 'https://www.tradingview.com/symbols/NASDAQ-AAPL/' 
+    }
+     return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(400)
+            .then(({body})=>{
+            expect(body.msg).toBe('400 Invalid Input')
+            })
+   });
+   test('Status 400: POST request responds with an error message and status code when passed an empty object', () => {
+    const newArticle = {}
+     return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(400)
+            .then((res)=>{
+             expect(res.body.msg).toBe('400 Invalid Input')
+            })
+   });
+  });
+ 
