@@ -56,42 +56,28 @@ exports.selectCommentsByArticleId =  (article_id)=>{
     })
 }
 
-exports.insertNewComment= (article_id, newComment)=>{
+exports.insertNewComment= (article_id, username,body)=>{
      return db.query('SELECT * FROM comments WHERE article_id = $1', [article_id])
     .then((data)=>{
-        const filterByArticleId = data.rows
-        if(!filterByArticleId.length){
+        const checkByArticleId = data.rows
+        if(!checkByArticleId.length){
             return Promise.reject({status: 404, msg: '404 Not Found'})
            } 
-        else if(filterByArticleId.length){
-           if(newComment.username){
-            return db.query('SELECT * FROM users WHERE username = $1', [newComment.username])
-           } else {
-            return Promise.reject({status: 400, msg: '400 Bad Request'})
-           }
-        }
-    })
-    .then((response)=>{
-      const filterUserName = response.rows
-      if(!filterUserName.length){
-        return Promise.reject({status: 401, msg: '401 Not Authenticated'})
-      } else if(filterUserName.length){
-          const nestedArr = [[newComment.body,article_id, newComment.username]]
-            return db.query(format(`INSERT INTO comments (body, article_id, author) VALUES %L RETURNING *`, nestedArr))
-      }
-    })
+        return db.query(`INSERT INTO comments (body, article_id, author) VALUES ($1, $2, $3) RETURNING *`, [body, article_id, username])
+ 
+        })
     .then((data)=>{
         return data.rows[0]
     })   
 }
 
-exports.updateVotesByArticleId = (article_id, newVotes)=>{
+exports.updateVotesByArticleId = (article_id, inc_votes)=>{
     return db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
     .then((data)=>{
         const filterArticleById = data.rows.length
         if(filterArticleById){
-            if(typeof newVotes.inc_votes === 'number'){
-                return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`, [newVotes.inc_votes, article_id])
+            if(typeof inc_votes === 'number'){
+                return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`, [inc_votes, article_id])
             } else {
                 return Promise.reject({status: 400, msg: '400 Bad Request'})
             }
@@ -156,3 +142,20 @@ exports.updateComment = (comment_id, inc_votes)=>{
     })
 }
 }
+
+exports.addNewArticle = (author, title, body, topic, article_img_url)=>{
+  return db.query(`INSERT INTO articles (title, topic, author, body, article_img_url) VALUES ( $1, $2, $3,$4, $5) RETURNING *`, [title, topic, author, body, article_img_url])
+  .then((data)=>{
+    return db.query('SELECT articles.author, articles.title, articles.body, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id')
+  })
+  .then((response)=>{
+    const postArticle = response.rows.filter((article)=>{
+        if(article.body === body){
+           return article;
+        }
+    })
+    return postArticle[0]
+  })
+}
+
+

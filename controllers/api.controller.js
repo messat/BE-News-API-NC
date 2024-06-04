@@ -1,4 +1,4 @@
-const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment} = require('../models/api.model')
+const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle} = require('../models/api.model')
 exports.getAllTopics = (req,res)=>{
     selectAllTopics()
     .then((topics)=>{
@@ -52,8 +52,8 @@ exports.getCommentsByArticleId = (req,res,next)=>{
 
 exports.postCommentByArticleId = (req,res,next)=>{
     const {article_id}= req.params
-    const newComment = req.body
-    insertNewComment(article_id, newComment).then((comment)=>{
+    const {username, body} = req.body
+    insertNewComment(article_id, username, body).then((comment)=>{
      res.status(201).send({comment})
     })
     .catch((err)=>{
@@ -63,8 +63,8 @@ exports.postCommentByArticleId = (req,res,next)=>{
 
 exports.fetchArticleById = (req,res,next)=>{
     const {article_id}= req.params
-    const newVotes = req.body
-    updateVotesByArticleId(article_id, newVotes).then((article)=>{
+    const {inc_votes} = req.body
+    updateVotesByArticleId(article_id, inc_votes).then((article)=>{
         res.status(200).send({article})
     })
     .catch((err)=>{
@@ -109,5 +109,15 @@ exports.updateVotesByCommentId = (req,res,next)=>{
     })
     .catch((err)=>{
      next(err)
+    })
+}
+
+exports.postNewArticle = (req,res,next)=>{
+    const {author, title, body, topic, article_img_url}= req.body
+    addNewArticle(author, title, body, topic, article_img_url).then((article)=>{
+        res.status(201).send({article})
+    })
+    .catch((err)=>{
+        next(err)
     })
 }
