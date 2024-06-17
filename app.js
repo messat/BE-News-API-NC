@@ -1,8 +1,11 @@
 const express = require('express')
 const app = express()
+const cors = require('cors');
 const {apiRouter, articlesRouter, topicRouter, commentRouter, userRouter} = require('./routes/index-router')
 const { noEndpoint} = require('./controllers/api.controller')
 const {handleCustomErrors, handlePsqlErrors, handleServerErrors} = require('./errorHandler/api.errorHandler')
+
+app.use(cors());
 
 app.use(express.json())
 
