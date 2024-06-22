@@ -35,9 +35,11 @@ exports.selectArticleById = async (article_id)=>{
             
 }
 
-exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery)=>{
-     if(topic || sort_by || order){
-        return checkQueryExists(topic, sort_by, order, arrOfKeysQuery)
+exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery, limit, p)=>{
+    const totalArticles = await db.query(`SELECT * FROM articles`)
+    const allArticleLength = totalArticles.rows.length
+     if(topic || sort_by || order || limit || p){
+        return checkQueryExists(topic, sort_by, order, arrOfKeysQuery, limit, p, allArticleLength)
      } 
         else {
          const allArticles = await db.query('SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, CAST (COUNT(comments.article_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC;')
@@ -46,15 +48,29 @@ exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery)=>{
     }
 
 
-exports.selectCommentsByArticleId =  async (article_id)=>{
+exports.selectCommentsByArticleId =  async (article_id, limit = 10, p)=>{
+    let sqlString = 'SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC'
     try {
         const checkArticleId = await db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
         if(checkArticleId.rows.length){
+            if(limit & p){
+                sqlString+=` LIMIT ${limit}`
+                if(p){
+                    sqlString+= ` OFFSET ${p}`;
+                    const paginationOffSet = await db.query(sqlString, [article_id])
+                    console.log(paginationOffSet.rows)
+                    return paginationOffSet.rows
+                } else {
+                    sqlString+=`;`
+                    const paginationLimit = await db.query(sqlString, [article_id])
+                    return paginationLimit.rows
+                }
+            }
             const commentsById = await db.query('SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC', [article_id])
             return commentsById.rows
         } else {
             return Promise.reject({status: 404, msg: '404 Not Found'})
-        }
+            }
     } catch (err){
       throw(err)
     }
