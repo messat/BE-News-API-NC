@@ -1,123 +1,137 @@
+const articles = require('../db/data/test-data/articles')
 const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle} = require('../models/api.model')
-exports.getAllTopics = (req,res)=>{
-    selectAllTopics()
-    .then((topics)=>{
-        res.status(200).send({topics})
-    })
+
+exports.getAllTopics = async (req,res)=>{
+   const topics = await selectAllTopics()
+    res.status(200).send({topics})
 }
 
 exports.noEndpoint = (req,res)=>{
     res.status(404).send({msg: '404 Route Not Found'})
 }
 
-exports.getAllEndpoints = (req,res, next)=>{
-    selectAllEndpoints().then((endpoints)=>{
+exports.getAllEndpoints = async (req,res, next)=>{
+    try {
+        const endpoints = await selectAllEndpoints()
         res.status(200).send({endpoints})
-    }).catch((err)=>{
+    }
+    catch (err) {
         next(err)
-    })
+    }
 }
 
-exports.getArticleById = (req,res, next)=>{
+exports.getArticleById = async (req,res, next)=>{
     const {article_id} = req.params
-    selectArticleById(article_id).then((article)=>{
+    try {
+        const article = await selectArticleById(article_id)
         res.status(200).send({article})
-    })
-    .catch((err)=>{
+    }
+    catch (err) {
         next(err)
-    })
+    }
 }
 
-exports.getAllArticles = (req, res, next)=>{ 
+exports.getAllArticles = async (req, res, next)=>{ 
     const {topic, sort_by, order} = req.query
-        selectAllArticles(topic, sort_by, order).then((articles)=>{
-           res.status(200).send({articles})
-        })
-        .catch((err)=>{
-           next(err)
-        })
-    
-}
-
-exports.getCommentsByArticleId = (req,res,next)=>{
-    const {article_id}= req.params
-    selectCommentsByArticleId(article_id)
-    .then((comments)=>{
-     res.status(200).send({comments})
-    })
-    .catch((err)=>{
+    const arrOfKeysQuery = Object.keys(req.query)
+    try {
+        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery)
+            if(articles.status){
+                res.status(400).send({msg: '400 Bad Request'})
+            }
+            res.status(200).send({articles})
+    }
+    catch (err) {
         next(err)
-    })
+    }
 }
 
-exports.postCommentByArticleId = (req,res,next)=>{
+exports.getCommentsByArticleId = async (req,res,next)=>{
+    const {article_id}= req.params
+    try {
+    const comments = await selectCommentsByArticleId(article_id)
+         res.status(200).send({comments})
+    }
+    catch (err){
+        next(err)
+    }
+}
+
+exports.postCommentByArticleId = async (req,res,next)=>{
     const {article_id}= req.params
     const {username, body} = req.body
-    insertNewComment(article_id, username, body).then((comment)=>{
-     res.status(201).send({comment})
-    })
-    .catch((err)=>{
+    try {
+      const comment = await insertNewComment(article_id, username, body)
+         res.status(201).send({comment})
+    }
+     catch (err){
         next(err)
-    })
+    }
 }
 
-exports.fetchArticleById = (req,res,next)=>{
+exports.fetchArticleById = async (req,res,next)=>{
     const {article_id}= req.params
     const {inc_votes} = req.body
-    updateVotesByArticleId(article_id, inc_votes).then((article)=>{
+    try {
+        const article = await updateVotesByArticleId(article_id, inc_votes)
         res.status(200).send({article})
-    })
-    .catch((err)=>{
+    } 
+    catch (err){
         next(err)
-    })
+    }
 }
 
-exports.getCommentById = (req,res,next)=>{
+exports.getCommentById = async (req,res,next)=>{
     const {comment_id} = req.params
-    deleteCommentById(comment_id).then(()=>{
+    try {
+        await deleteCommentById(comment_id)
         res.status(204).send()
-    })
-    .catch((err)=>{
+    }
+    catch (err) {
        next(err)
-    })
+    }
 }
 
-exports.getAllUsers = (req,res,next)=>{
-    selectAllUsers().then((users)=>{
-     res.status(200).send({users})
-    })
-    .catch((err)=>{
+exports.getAllUsers = async (req,res,next)=>{
+    try {
+        const users = await selectAllUsers()
+        res.status(200).send({users})
+    }
+    catch (err) {
         next(err)
-    })
+    }
 }
 
-exports.getByUserName =(req,res,next)=>{
+exports.getByUserName = async (req,res,next)=>{
     const {username} = req.params
-    selectByUserName(username).then((user)=>{
+    try {
+    const user = await selectByUserName(username)
         res.status(200).send({user})
-    })
-    .catch((err)=>{
+        }
+    catch (err){
      next(err)
-    })
+        }
 }
 
-exports.updateVotesByCommentId = (req,res,next)=>{
+exports.updateVotesByCommentId = async (req,res,next)=>{
     const {comment_id} = req.params
     const {inc_votes} = req.body
-    updateComment(comment_id, inc_votes).then((comment)=>{
-        res.status(200).send({comment})
-    })
-    .catch((err)=>{
+    try {
+        const comment = await updateComment(comment_id, inc_votes)
+            res.status(200).send({comment})
+    }
+    catch(err){
      next(err)
-    })
+    }
 }
 
-exports.postNewArticle = (req,res,next)=>{
+exports.postNewArticle = async (req,res,next)=>{
     const {author, title, body, topic, article_img_url}= req.body
-    addNewArticle(author, title, body, topic, article_img_url).then((article)=>{
-        res.status(201).send({article})
-    })
-    .catch((err)=>{
+    try {
+        const article = await addNewArticle(author, title, body, topic, article_img_url)
+            res.status(201).send({article})
+    }
+    catch(err){
         next(err)
-    })
+    }
 }

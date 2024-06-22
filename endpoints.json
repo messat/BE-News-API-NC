@@ -1,6 +1,6 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "serves up a json representation of all the available endpoints of the api - simulating API documentation"
   },
   "GET /api/topics": {
     "description": "serves an array of all topics",
@@ -27,7 +27,7 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "Responds with an object from the requested article_id of an array",
+    "description": "Responds with a single object from the requested article_id of an array",
     "queries": [],
     "exampleResponse" : {
       "articles": [
@@ -39,14 +39,15 @@
           "body": "I find this existence challenging",
           "created_at": "2020-07-09T20:11:00.000Z",
           "votes": 100,
-          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+           "comment_count": 5
         }
       ]
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "Responds with array of object listing all the comments with the requested ID",
-    "queries": ["article_id"],
+    "description": "Responds with array of objects listing all the comments with associated article ID",
+    "queries": [],
     "exampleResponse" : {
       "comments": [
         {
@@ -62,8 +63,9 @@
       
     },
     "POST /api/articles/:article_id/comments": {
-      "description": "Adds a comment to the requested article ID in the array with array",
-      "queries": ["article_id", "newComment"],
+      "description": "Adds a comment to the requested article ID in the array ",
+      "queries": [],
+      "post body": {"username":"butter_bridge", "body":"I find this existence challenging"},
       "exampleResponse" : {
         "comments": [
           {
@@ -79,8 +81,9 @@
         
       },
       "PATCH /api/articles/:article_id": {
-        "description": "Updates the votes count in the article table requested by article_id",
-        "queries": ["article_id", "newVotes"],
+        "description": "Updates the vote count of the article requested by article_id",
+        "queries": [],
+        "patch body": { "inc_votes": 1},
         "exampleResponse" : {
           "article": [
             {
@@ -99,7 +102,7 @@
         },
         "DELETE /api/comments/:comment_id": {
           "description": "Deletes the row with the given comment_id in the url and no body is sent back as it is deleted",
-          "queries": ["comment_id"] 
+          "queries": [] 
           },
           "GET /api/users": {
             "description": "Responds with an array of all users",
@@ -145,6 +148,7 @@
               "PATCH /api/comments/:comment_id": {
                 "description": "Updates the votes by given comment_id",
                 "queries": [],
+                "patch body": { "inc_votes": 5},
                 "exampleResponse" : {
                   "users":  [
                     {
@@ -161,6 +165,7 @@
                 "POST /api/articles/": {
                   "description": "Adds new article",
                   "queries": [],
+                  "post body": { "author": "butter_bridge", "title" : "BMW", "body": "strong", "topic": "cars", "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700 (HAS DEFAULT VALUE)"},
                   "exampleResponse" : {
                     "article": [
                       {
