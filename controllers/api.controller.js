@@ -1,3 +1,4 @@
+const { totalCount } = require('../db/connection')
 const articles = require('../db/data/test-data/articles')
 const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle} = require('../models/api.model')
 
@@ -32,10 +33,10 @@ exports.getArticleById = async (req,res, next)=>{
 }
 
 exports.getAllArticles = async (req, res, next)=>{ 
-    const {topic, sort_by, order} = req.query
+    const {topic, sort_by, order, limit, p} = req.query
     const arrOfKeysQuery = Object.keys(req.query)
     try {
-        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery)
+        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery, limit, p)
             if(articles.status){
                 res.status(400).send({msg: '400 Bad Request'})
             }
@@ -48,8 +49,9 @@ exports.getAllArticles = async (req, res, next)=>{
 
 exports.getCommentsByArticleId = async (req,res,next)=>{
     const {article_id}= req.params
+    const {limit, p}= req.query
     try {
-    const comments = await selectCommentsByArticleId(article_id)
+    const comments = await selectCommentsByArticleId(article_id, limit, p)
          res.status(200).send({comments})
     }
     catch (err){

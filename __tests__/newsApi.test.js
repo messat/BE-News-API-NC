@@ -399,7 +399,6 @@ describe('CORE Task 11: GET request /api/articles?topic=mitch using query string
     .expect(200)
     .then(({body})=>{
       const topicsArr = body.articles
-     expect(topicsArr).toHaveLength(12)
      topicsArr.forEach((topic)=>{
       expect(topic).toHaveProperty('topic', 'mitch')
      })
@@ -522,7 +521,6 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             expect(articlesArr).toBeSortedBy('body', {
               ascending: true
             })
-            expect(articlesArr).toHaveLength(12)
     })
      });
      test('Status 404: GET request with one valid query and the other invalid i.e. topic returns an error message', () => {
@@ -692,4 +690,45 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
    });
   });
+
+  describe('ADVANCED Challenge 20: GET request for /api/articles?limit=5&p=4 - query string is used to limit the page', ()=>{
+    test('Status 200: GET request limits the articles by 10', () => {
+      return request(app)
+            .get('/api/articles?limit=5')
+            .expect(200)
+            .then(({body})=>{
+            const articlesArr = body.articles
+             expect(articlesArr).toHaveLength(5)
+            })
+    });
+    test('Status 200: GET request with page numbers assigned when passed as query', () => {
+      return request(app)
+            .get('/api/articles?limit=5&p=2')
+            .expect(200)
+            .then(({body})=>{
+            const articlesArr = body.articles
+             expect(articlesArr).toHaveLength(5)
+            })
+    });
+  })
  
+describe('ADVANCED Challenge 21: GET request Pagination - /api/articles/:article_id/comments', () => {
+  test('Status 200: GET request with p has been set which sets an OFFSET limit on the page', () => {
+    return request(app)
+          .get('/api/articles/1/comments?p=3')
+          .expect(200)
+          .then(({body})=>{
+            const commentsArr = body.comments
+            expect(commentsArr).toHaveLength(8)
+          })
+  });
+  test('Status 200: GET request with limit has been set which lists a certain number of comments on a page', () => {
+    return request(app)
+          .get('/api/articles/5/comments?limit=5&p=0')
+          .expect(200)
+          .then(({body})=>{
+          const commentsArr = body.comments
+           expect(commentsArr).toHaveLength(2)
+          })
+  });
+});
