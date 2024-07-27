@@ -1,9 +1,7 @@
 const db = require('../db/connection.js');
 const fs = require('fs/promises')
-//const format = require('pg-format');
 
-const {selectCommentsByIdExists, checkQueryExists} = require('./checkExists.model.js');
-const { log } = require('console');
+const {checkQueryExists} = require('./checkExists.model.js');
 
 
 
@@ -53,12 +51,11 @@ exports.selectCommentsByArticleId =  async (article_id, limit = 10, p)=>{
     try {
         const checkArticleId = await db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
         if(checkArticleId.rows.length){
-            if(limit & p){
+            if(limit){
                 sqlString+=` LIMIT ${limit}`
                 if(p){
                     sqlString+= ` OFFSET ${p}`;
                     const paginationOffSet = await db.query(sqlString, [article_id])
-                    console.log(paginationOffSet.rows)
                     return paginationOffSet.rows
                 } else {
                     sqlString+=`;`

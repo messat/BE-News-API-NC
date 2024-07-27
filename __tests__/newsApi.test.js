@@ -713,18 +713,19 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
   })
  
 describe('ADVANCED Challenge 21: GET request Pagination - /api/articles/:article_id/comments', () => {
-  test('Status 200: GET request with p has been set which sets an OFFSET limit on the page', () => {
+  test('Status 200: GET request with offset limit', () => {
     return request(app)
           .get('/api/articles/1/comments?p=3')
           .expect(200)
           .then(({body})=>{
             const commentsArr = body.comments
+            console.log(commentsArr)
             expect(commentsArr).toHaveLength(8)
           })
   });
   test('Status 200: GET request with limit has been set which lists a certain number of comments on a page', () => {
     return request(app)
-          .get('/api/articles/5/comments?limit=5&p=0')
+          .get('/api/articles/5/comments?limit=5&p=1')
           .expect(200)
           .then(({body})=>{
           const commentsArr = body.comments

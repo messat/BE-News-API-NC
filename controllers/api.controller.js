@@ -1,5 +1,3 @@
-const { totalCount } = require('../db/connection')
-const articles = require('../db/data/test-data/articles')
 const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle} = require('../models/api.model')
 
 exports.getAllTopics = async (req,res)=>{
