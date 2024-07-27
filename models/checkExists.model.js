@@ -5,6 +5,7 @@ exports.checkQueryExists = async (topic, sort_by = 'created_at', order= 'DESC', 
       const orderKeywords = ['asc', 'desc', 'DESC', 'ASC']
       const fieldNames = await db.query(`Select * FROM articles`)
       const sortByKeywords = Object.keys(fieldNames.rows[0])
+
       let sqlString = 'SELECT * FROM articles'
       const queryValues = []
       if (arrOfKeysQuery.includes('topic') || arrOfKeysQuery.includes('sort_by') || arrOfKeysQuery.includes('order') || arrOfKeysQuery.includes('limit')){
@@ -18,13 +19,13 @@ exports.checkQueryExists = async (topic, sort_by = 'created_at', order= 'DESC', 
                    return Promise.reject({status: 404, msg: '404 Not Found'})
             }
          } 
-         if(sortByKeywords.includes(sort_by)){
+         if(sort_by){
             sqlString+=` ORDER BY ${sort_by}`
          } 
          if(!sortByKeywords.includes(sort_by)){
             return {status: 400, msg: '400 Bad Request'}
          }
-         if(orderKeywords.includes(order)){
+         if(order){
             sqlString+= ` ${order}`
          } 
          if(!orderKeywords.includes(order)){
@@ -38,7 +39,6 @@ exports.checkQueryExists = async (topic, sort_by = 'created_at', order= 'DESC', 
          }
          sqlString+=';'
          const {rows} = await db.query(sqlString, queryValues)
-         //const count = {total_count: (Math.ceil(allArticleLength-((p-1)*limit)))}
             return rows 
       } 
       }
