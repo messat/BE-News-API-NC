@@ -31,13 +31,13 @@ exports.getArticleById = async (req,res, next)=>{
 }
 
 exports.getAllArticles = async (req, res, next)=>{ 
-    const {topic, sort_by, order, limit, p} = req.query
+    const {topic, sort_by, order} = req.query
     const arrOfKeysQuery = Object.keys(req.query)
     try {
-        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery, limit, p)
-            if(articles.status){
-                res.status(400).send({msg: '400 Bad Request'})
-            }
+        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery)
+        if(articles.status){
+            res.status(articles.status).send(articles)
+        }
             res.status(200).send({articles})
     }
     catch (err) {
@@ -47,9 +47,8 @@ exports.getAllArticles = async (req, res, next)=>{
 
 exports.getCommentsByArticleId = async (req,res,next)=>{
     const {article_id}= req.params
-    const {limit, p}= req.query
     try {
-    const comments = await selectCommentsByArticleId(article_id, limit, p)
+    const comments = await selectCommentsByArticleId(article_id)
          res.status(200).send({comments})
     }
     catch (err){

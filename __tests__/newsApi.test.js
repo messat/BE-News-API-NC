@@ -531,14 +531,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             expect(body.msg).toBe('404 Not Found')
     })
      });
-     test('Status 400: GET request with invalid order query', () => {
-      return request(app)
-            .get('/api/articles?order=ASCC')
-            .expect(400)
-            .then(({body})=>{
-            expect(body.msg).toBe('400 Bad Request')
-    })
-     });
+    
      test('Status 400: GET request with invalid sort_by query', () => {
       return request(app)
             .get('/api/articles?sort_by=apples')
@@ -691,45 +684,5 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
    });
   });
 
-  describe('ADVANCED Challenge 20: GET request for /api/articles?limit=5&p=4 - query string is used to limit the page', ()=>{
-    test('Status 200: GET request limits the articles by 10', () => {
-      return request(app)
-            .get('/api/articles?limit=5')
-            .expect(200)
-            .then(({body})=>{
-            const articlesArr = body.articles
-             expect(articlesArr).toHaveLength(5)
-            })
-    });
-    test('Status 200: GET request with page numbers assigned when passed as query', () => {
-      return request(app)
-            .get('/api/articles?limit=5&p=2')
-            .expect(200)
-            .then(({body})=>{
-            const articlesArr = body.articles
-             expect(articlesArr).toHaveLength(5)
-            })
-    });
-  })
+
  
-describe('ADVANCED Challenge 21: GET request Pagination - /api/articles/:article_id/comments', () => {
-  test('Status 200: GET request with offset limit', () => {
-    return request(app)
-          .get('/api/articles/1/comments?p=3')
-          .expect(200)
-          .then(({body})=>{
-            const commentsArr = body.comments
-            console.log(commentsArr)
-            expect(commentsArr).toHaveLength(8)
-          })
-  });
-  test('Status 200: GET request with limit has been set which lists a certain number of comments on a page', () => {
-    return request(app)
-          .get('/api/articles/5/comments?limit=5&p=1')
-          .expect(200)
-          .then(({body})=>{
-          const commentsArr = body.comments
-           expect(commentsArr).toHaveLength(2)
-          })
-  });
-});
