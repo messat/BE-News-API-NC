@@ -642,6 +642,33 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
             })
    });
+   test('Status 201: POST request to post an article when the user has not provided an image URL which has default value', () => {
+    const newArticle = {
+      author: 'lurker',
+      title: 'The economic crash',
+      body: 'The world did not see this one coming', 
+      topic: 'paper',
+    }
+    return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(201)
+            .then(({body})=>{
+            const articleIdObj = body.article
+             expect(articleIdObj).toMatchObject({
+              article_id: 14,
+              title: 'The economic crash',
+              topic: 'paper',
+              author: 'lurker',
+              body: 'The world did not see this one coming',
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: 'https://www.techpowerup.com/img/LKhb6Bdk2RzjfBlV.jpg',
+              comment_count: expect.any(Number)
+            })
+            })
+
+   });
    test('Status 400: POST request displays an error message and status code when the body does not fulfill the criteria of articles table', () => {
     const newArticle = {
       title: 'Wolf of Apple',
