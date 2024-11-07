@@ -125,12 +125,13 @@ exports.updateVotesByCommentId = async (req,res,next)=>{
 }
 
 exports.postNewArticle = async (req,res,next)=>{
-    const {author, title, body, topic, article_img_url}= req.body
+    const {author, title, body, topic, article_img_url = "https://www.techpowerup.com/img/LKhb6Bdk2RzjfBlV.jpg"}= req.body
     try {
         const article = await addNewArticle(author, title, body, topic, article_img_url)
             res.status(201).send({article})
     }
     catch(err){
+        console.log(err)
         next(err)
     }
 }
