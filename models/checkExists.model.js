@@ -36,3 +36,13 @@ exports.checkQueryExists = async (topic, sort_by = 'created_at', order= 'DESC', 
             return rows 
       } 
       }
+
+exports.queryArticleId = async (article_id) => {
+   try {
+      const {rows: checkArticleId} = await db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
+      return checkArticleId
+   }
+   catch (err){
+      throw err
+   }
+}

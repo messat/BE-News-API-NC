@@ -86,23 +86,23 @@ describe('CORE Task 4: GET request /api/articles/:article_id', () => {
                 expect(body.msg).toBe('404 Route Not Found')
                })
     });
-    test('Status 400: GET request when passed with invalid parametric endpoint that does not match the data type conveys an error message', () => {
+    test('Status 400: GET request when passed with invalid parametric endpoint that does not match the numeric data type conveys an error message', () => {
         return request(app)
                .get('/api/articles/banana')
                .expect(400)
                .then(({body})=>{
-                expect(body.msg).toBe('400 Invalid Text')
+                expect(body.msg).toBe('400 Invalid text input: Expected numeric value.')
                })
     });
 });
 
 describe('CORE Task 5: GET request /api/articles', () => {
-  test('Status 200: GET request fetches all articles in the array and checks if the array by date is in descending order', () => {
+  test('Status 200: GET request fetches all articles in the array and checks timestamps in the array are sorted in descending order', () => {
     return request(app)
            .get('/api/articles')
            .expect(200)
            .then(({body})=>{
-            const articlesArray = body.articles
+            const {articles: articlesArray} = body
             expect(articlesArray).toHaveLength(13)
             articlesArray.forEach((article)=>{
               expect(article).toMatchObject({
@@ -123,12 +123,12 @@ describe('CORE Task 5: GET request /api/articles', () => {
 });
 
 describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
-  test('Status 200: GET request to fetch all comments from a requested article_id and is ordered by most recent first', () => {
+  test('Status 200: GET request to fetch all comments from a requested article ID and comments are ordered by most recent first', () => {
     return request(app)
            .get('/api/articles/1/comments')
            .expect(200)
            .then(({body})=>{
-            const commentsIdArray = body.comments
+            const {comments: commentsIdArray} = body
             expect(commentsIdArray).toHaveLength(11)
             commentsIdArray.forEach((comment)=>{
               expect(comment).toMatchObject({
@@ -143,29 +143,29 @@ describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
             expect(commentsIdArray).toBeSortedBy('created_at', {descending: true})
            })
   });
-  test('Status 200: GET request with an article_id that does not exist in the comments table but exist in articles id - foreign key - returns an empty array', () => {
+  test('Status 200: GET request responds with an empty array - the article ID exists in the articles table but not in the comments table', () => {
     return request(app)
            .get('/api/articles/2/comments')
            .expect(200)
            .then(({body})=>{
-            const commentsIdArray = body.comments
+            const {comments: commentsIdArray} = body
             expect(commentsIdArray).toEqual([])
            })
   });
-  test('Status 404: GET request with an article_id that does not exist in the articles table', () => {
+  test('Status 404: GET request with an article ID that does not exist in the articles table', () => {
     return request(app)
            .get('/api/articles/800/comments')
            .expect(404)
            .then(({body})=>{
-            expect(body.msg).toBe('404 Not Found')
+            expect(body.msg).toBe('404 Route Not Found')
            })
   });
-  test('Status 400: GET request with an article_id but does not follow schema validation - incorrect data type - string', () => {
+  test('Status 400: GET request to endpoint with invalid non-numeric data type as article ID', () => {
     return request(app)
            .get('/api/articles/not-a-number/comments')
            .expect(400)
            .then(({body})=>{
-            expect(body.msg).toBe('400 Invalid Input')
+            expect(body.msg).toBe('400 Invalid text input: Expected numeric value.')
            })
   });
 });
@@ -191,10 +191,10 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
             })
            })
   });
-  test('Status 201: POST request post the comment despite containing extra properties which are ignored', () => {
+  test('Status 201: POST request post the comment despite containing extra properties which are ignored - server side validation', () => {
     const newUser = {
       username: 'butter_bridge',
-      body: 'Salaams Cola is the best drink',
+      body: 'Salaams Cola is better than Coca-Cola',
       origin: 'Turkey'
     }
      return request(app)
@@ -203,7 +203,7 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
             .expect(201)
             .then(({body})=>{
              expect(body.comment.author).toBe('butter_bridge')
-             expect(body.comment.body).toBe('Salaams Cola is the best drink')
+             expect(body.comment.body).toBe('Salaams Cola is better than Coca-Cola')
              expect(body.comment).not.toHaveProperty('origin')
             })
    });
@@ -216,39 +216,39 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
             .send(newUser)
             .expect(400)
             .then(({body})=>{
-             expect(body.msg).toBe('400 Invalid Input')
+             expect(body.msg).toBe('400 Bad Request: A required field is missing or null.')
             })
    });
    test('Status 404: POST request responds with an error message and status code when article_id does not exist', () => {
     const newUser = {
-    username: 'butter_bridge',
-     body: 'I love toasts only in the morning'
+      username: 'butter_bridge',
+      body: 'I love toasts only in the morning'
     }
      return request(app)
             .post('/api/articles/800/comments')
             .send(newUser)
             .expect(404)
             .then(({body})=>{
-             expect(body).toEqual({status: 404, msg: '404 Not Found'})
+             expect(body.msg).toBe("404 Route Not Found")
             })
    });
    test('Status 400: POST request responds with an error message and status code when username does not exist', () => {
     const newUser = {
      username: 'Muhammad',
-     body: 'King of Wall Street'
+     body: 'Coding is great'
     }
      return request(app)
             .post('/api/articles/1/comments')
             .send(newUser)
             .expect(400)
             .then(({body})=>{
-             expect(body.msg).toBe('400 Invalid Input')
+             expect(body.msg).toBe('400 Bad Request: Enter a valid author(username).')
             })
    });
 });
 
 describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
-  test('Status 200: PATCH request updates the votes field by the requested article_id', () => {
+  test('Status 200: PATCH request updates the votes property by the requested article ID', () => {
     const updateVotes = {
       inc_votes : 1 
     }
@@ -257,7 +257,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             .send(updateVotes)
             .expect(200)
             .then(({body})=>{
-              const articleIdObj = body.article
+              const {article: articleIdObj} = body
              expect(articleIdObj).toEqual({
               article_id: 1,
               title: 'Living in the shadow of a great man',
@@ -270,7 +270,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             })
             })
    });
-   test('Status 200: PATCH request deducts the votes by the requested article_id', () => {
+   test('Status 200: PATCH request deducts the votes by the article ID', () => {
     const updateVotes = {
       inc_votes : -81 
     }
@@ -279,7 +279,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             .send(updateVotes)
             .expect(200)
             .then(({body})=>{
-              const articleIdObj = body.article
+              const {article: articleIdObj} = body
              expect(articleIdObj).toEqual({
               article_id: 1,
               title: 'Living in the shadow of a great man',
@@ -292,7 +292,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             })
             })
    });
-   test('Status 404: PATCH request responds with an error message and status code when article_id does not exist', () => {
+   test('Status 404: PATCH request responds with an error message when article ID does not exist', () => {
     const updateVotes = {
       inc_votes : 1 
     }
@@ -301,10 +301,10 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             .send(updateVotes)
             .expect(404)
             .then(({body})=>{
-              expect(body.msg).toBe('404 Not Found')
+              expect(body.msg).toBe('404 Route Not Found')
             })
    });
-   test('Status 400: PATCH request responds with an error message and status code when article_id exist but the object updates votes does not have the correct data type', () => {
+   test('Status 400: PATCH request responds with an error message when article ID exist and the incoming request does not contain numeric value in object', () => {
     const updateVotes = {
       inc_votes : 'one'
     }
@@ -316,7 +316,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
               expect(body.msg).toBe('400 Bad Request')
             })
    });
-   test('Status 400: PATCH request responds with an error message and status code when article_id exist but the object does not follow schema validation', () => {
+   test('Status 400: PATCH request responds with an error message when article ID exist but the object does not follow schema validation', () => {
     const updateVotes = {
       countVotes : 1
     }
@@ -328,7 +328,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
               expect(body.msg).toBe('400 Bad Request')
             })
    });
-   test('Status 400: PATCH request responds with an error message and status code when article_id exist but the object is empty', () => {
+   test('Status 400: PATCH request responds with an error message when article ID exist but the incoming request is empty', () => {
     const updateVotes = {}
      return request(app)
             .patch('/api/articles/3')

@@ -37,7 +37,7 @@ exports.getAllArticles = async (req, res, next)=>{
         if(articles.status){
             res.status(articles.status).send(articles)
         }
-            res.status(200).send({articles})
+        res.status(200).send({articles})
     }
     catch (err) {
         next(err)
@@ -47,8 +47,8 @@ exports.getAllArticles = async (req, res, next)=>{
 exports.getCommentsByArticleId = async (req,res,next)=>{
     const {article_id}= req.params
     try {
-    const comments = await selectCommentsByArticleId(article_id)
-         res.status(200).send({comments})
+        const comments = await selectCommentsByArticleId(article_id)
+        res.status(200).send({comments})
     }
     catch (err){
         next(err)
@@ -59,15 +59,15 @@ exports.postCommentByArticleId = async (req,res,next)=>{
     const {article_id}= req.params
     const {username, body} = req.body
     try {
-      const comment = await insertNewComment(article_id, username, body)
-         res.status(201).send({comment})
+        const comment = await insertNewComment(article_id, username, body)
+        res.status(201).send({comment})
     }
      catch (err){
         next(err)
     }
 }
 
-exports.fetchArticleById = async (req,res,next)=>{
+exports.updateArticleById = async (req,res,next)=>{
     const {article_id}= req.params
     const {inc_votes} = req.body
     try {
@@ -116,7 +116,7 @@ exports.updateVotesByCommentId = async (req,res,next)=>{
     const {inc_votes} = req.body
     try {
         const comment = await updateComment(comment_id, inc_votes)
-            res.status(200).send({comment})
+        res.status(200).send({comment})
     }
     catch(err){
      next(err)

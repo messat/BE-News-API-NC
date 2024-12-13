@@ -1,5 +1,6 @@
 const db = require('../db/connection.js');
 const fs = require('fs/promises')
+const {queryArticleId} = require("./checkExists.model.js")
 
 const {checkQueryExists} = require('./checkExists.model.js');
 
@@ -24,7 +25,7 @@ exports.selectArticleById = async (article_id)=>{
         if (!singleArticle.length){
                 return Promise.reject({status: 404, msg: "404 Route Not Found"})
             } 
-         return singleArticle[0]
+        return singleArticle[0]
  } catch (err) {
     throw err
  }         
@@ -33,26 +34,26 @@ exports.selectArticleById = async (article_id)=>{
 
 
 exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery)=>{
-     if(topic || sort_by || order){
+    if(topic || sort_by || order){
         return checkQueryExists(topic, sort_by, order, arrOfKeysQuery)
-     } 
-        else {
-         const allArticles = await db.query('SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, CAST (COUNT(comments.article_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC;')
-        return allArticles.rows
-     }
+    } 
+    else {
+        const {rows: allArticles} = await db.query('SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, CAST (COUNT(comments.article_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC;')
+        return allArticles
+    }
     }
 
 
 exports.selectCommentsByArticleId =  async (article_id)=>{
-    let sqlString = 'SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC'
+    let commentQry = 'SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC'
     try {
-        const checkArticleId = await db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
-        if(checkArticleId.rows.length){
-            const commentsById = await db.query('SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC', [article_id])
-            return commentsById.rows
+        const checkArticleId = await queryArticleId(article_id)
+        if(checkArticleId.length){
+            const {rows: commentsById} = await db.query(commentQry, [article_id])
+            return commentsById
         } else {
-            return Promise.reject({status: 404, msg: '404 Not Found'})
-            }
+            return Promise.reject({status: 404, msg: '404 Route Not Found'})
+        }
     } catch (err){
       throw(err)
     }
@@ -60,35 +61,36 @@ exports.selectCommentsByArticleId =  async (article_id)=>{
 
 exports.insertNewComment= async (article_id, username, body)=>{
     try {
-        const checkArticleId = await db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
-        const articleId = checkArticleId.rows
-        if(!articleId.length){
-            return Promise.reject({status: 404, msg: '404 Not Found'})
+        const checkArticleId = await queryArticleId(article_id)
+        if(!checkArticleId.length){
+            return Promise.reject({status: 404, msg: '404 Route Not Found'})
            } 
-        const commentPost = await db.query(`INSERT INTO comments (body, article_id, author) VALUES ($1, $2, $3) RETURNING *`, [body, article_id, username])
-        return commentPost.rows[0]
+        const {rows: commentPost} = await db.query(`INSERT INTO comments (body, article_id, author) VALUES ($1, $2, $3) RETURNING *`, [body, article_id, username])
+        return commentPost[0]
     }
     catch (err){
-     throw(err)
+        throw(err)
     }
 }
 
 exports.updateVotesByArticleId = async (article_id, inc_votes)=>{
-        const checkArticleId = await db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
-        const filterArticleById = checkArticleId.rows.length
-        if(filterArticleById){
+    try {
+        const checkArticleId = await queryArticleId(article_id)
+        if(checkArticleId.length){
             if(typeof inc_votes === 'number'){
-                const updateArticleVote = await db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`, [inc_votes, article_id])
-                return updateArticleVote.rows[0]
-            } 
-            else {
+                const {rows: updateArticleVote} = await db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`, [inc_votes, article_id])
+                return updateArticleVote[0]
+            } else {
                 return Promise.reject({status: 400, msg: '400 Bad Request'})
             }
-    }       
-            else {
-                return Promise.reject({status: 404, msg: '404 Not Found'
-                })
-                }
+        }
+        else {
+            return Promise.reject({status: 404, msg: '404 Route Not Found'})
+        }
+    } 
+    catch (err){
+        throw err
+    }
 }
     
 

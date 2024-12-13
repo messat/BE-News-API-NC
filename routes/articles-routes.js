@@ -1,5 +1,5 @@
 const express = require('express')
-const { getAllArticles, getArticleById, getCommentsByArticleId, postCommentByArticleId, fetchArticleById,postNewArticle} = require('../controllers/api.controller')
+const { getAllArticles, getArticleById, getCommentsByArticleId, postCommentByArticleId, updateArticleById,postNewArticle} = require('../controllers/api.controller')
 const articlesRouter = express.Router()
 
 articlesRouter
@@ -10,7 +10,7 @@ articlesRouter
 articlesRouter
     .route('/:article_id')
     .get(getArticleById)
-    .patch(fetchArticleById)
+    .patch(updateArticleById)
 
 articlesRouter
     .route('/:article_id/comments')
