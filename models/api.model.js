@@ -3,16 +3,14 @@ const fs = require('fs/promises')
 
 const {checkQueryExists} = require('./checkExists.model.js');
 
-
-
 exports.selectAllTopics = async ()=>{
-    const data = await db.query('SELECT * FROM topics;');
-    return data.rows;
+    const {rows} = await db.query('SELECT * FROM topics;');
+    return rows;
 }
 
 exports.selectAllEndpoints = async ()=>{
     const jsonFile = await fs.readFile('./endpoints.json', 'utf-8')
-            return JSON.parse(jsonFile)
+    return JSON.parse(jsonFile)
 }
 
 exports.selectArticleById = async (article_id)=>{
@@ -22,16 +20,17 @@ exports.selectArticleById = async (article_id)=>{
         LEFT JOIN comments ON articles.article_id = comments.article_id 
         WHERE articles.article_id = $1 
         GROUP BY articles.article_id;`, [article_id])
-        const articleIdArray = articleId.rows
-        if (!articleIdArray.length){
-                return Promise.reject({status: 404, msg: '404 Not Found'})
+        const {rows: singleArticle } = articleId
+        if (!singleArticle.length){
+                return Promise.reject({status: 404, msg: "404 Route Not Found"})
             } 
-         return articleIdArray[0]
+         return singleArticle[0]
  } catch (err) {
     throw err
- }
-            
+ }         
 }
+
+
 
 exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery)=>{
      if(topic || sort_by || order){

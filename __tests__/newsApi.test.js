@@ -11,7 +11,7 @@ beforeEach(()=>{
 
 afterAll(() => db.end())
 
-describe('Core Task 2: GET /api/topics', () => {
+describe('Core Task 2: GET /api/topics - Topics Endpoint', () => {
     test('Status 200: GET request responds with all topics contained in an array', () => {
         return request(app)
                .get('/api/topics')
@@ -27,7 +27,7 @@ describe('Core Task 2: GET /api/topics', () => {
                 }) 
                })
     });
-    test('Status 404: GET request with an invalid endpoint', () => {
+    test('Status 404: GET request with an invalid API endpoint shows an error message', () => {
       return request(app)
              .get('/api/toppic')
              .expect(404)
@@ -35,12 +35,12 @@ describe('Core Task 2: GET /api/topics', () => {
                expect(body.msg).toBe('404 Route Not Found')
              })
             });
-    test('Status 404: POST request - incorrect request method', () => {
+    test('Status 405: POST request, invalid http request method displaying an error message', () => {
       return request(app)
               .post('/api/topics')
-              .expect(404)
+              .expect(405)
               .then(({body})=>{
-                expect(body.msg).toBe('404 Route Not Found')
+                expect(body.msg).toBe('405 Method Not Allowed')
               })
           });
 });
@@ -64,7 +64,7 @@ describe('CORE Task 4: GET request /api/articles/:article_id', () => {
                .get('/api/articles/1')
                .expect(200)
                .then(({body})=>{
-                const articleObj = body.article
+                const { article: articleObj } = body
                 expect(articleObj.article_id).toBe(1)
                 expect(articleObj).toMatchObject({
                     author: expect.any(String),
@@ -78,20 +78,20 @@ describe('CORE Task 4: GET request /api/articles/:article_id', () => {
                 })
                })
     });
-    test('Status 404: GET request when passed with parametric endpoint that does not exist for instance, the article ID does not exist', () => {
+    test('Status 404: GET request to an article ID endpoint that is invalid displays an error message', () => {
         return request(app)
                .get('/api/articles/800')
                .expect(404)
                .then(({body})=>{
-                expect(body.msg).toBe('404 Not Found')
+                expect(body.msg).toBe('404 Route Not Found')
                })
     });
-    test('Status 400: GET request when passed with parametric endpoint that does not match the data type conveys message - bad request', () => {
+    test('Status 400: GET request when passed with invalid parametric endpoint that does not match the data type conveys an error message', () => {
         return request(app)
                .get('/api/articles/banana')
                .expect(400)
                .then(({body})=>{
-                expect(body.msg).toBe('400 Invalid Input')
+                expect(body.msg).toBe('400 Invalid Text')
                })
     });
 });

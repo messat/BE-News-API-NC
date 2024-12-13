@@ -1,22 +1,20 @@
 const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle} = require('../models/api.model')
 
 exports.getAllTopics = async (req,res)=>{
-   const topics = await selectAllTopics()
+    const topics = await selectAllTopics()
     res.status(200).send({topics})
 }
 
 exports.noEndpoint = (req,res)=>{
-    res.status(404).send({msg: '404 Route Not Found'})
+    if (req.method !== "GET"){
+        res.status(405).send({msg: "405 Method Not Allowed"})
+    }
+    res.status(404).send({msg: "404 Route Not Found"})
 }
 
-exports.getAllEndpoints = async (req,res, next)=>{
-    try {
-        const endpoints = await selectAllEndpoints()
-        res.status(200).send({endpoints})
-    }
-    catch (err) {
-        next(err)
-    }
+exports.endpointDocumentation = async (req,res, next)=>{
+    const endpoints = await selectAllEndpoints()
+    res.status(200).send({endpoints})    
 }
 
 exports.getArticleById = async (req,res, next)=>{
@@ -32,9 +30,10 @@ exports.getArticleById = async (req,res, next)=>{
 
 exports.getAllArticles = async (req, res, next)=>{ 
     const {topic, sort_by, order} = req.query
+    const {limit, p} = req.query
     const arrOfKeysQuery = Object.keys(req.query)
     try {
-        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery)
+        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery, limit, p)
         if(articles.status){
             res.status(articles.status).send(articles)
         }
@@ -131,7 +130,6 @@ exports.postNewArticle = async (req,res,next)=>{
             res.status(201).send({article})
     }
     catch(err){
-        console.log(err)
         next(err)
     }
 }
