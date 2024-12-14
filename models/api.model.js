@@ -150,4 +150,15 @@ exports.addNewArticle = async (author, title, body, topic, article_img_url)=>{
     return newArticleFinder[0]
 }
 
+exports.insertNewTopic = async (slug, description) => {
+    try {
+        if(typeof(slug) == "string" || typeof(description) == "string"){
+            const {rows: newTopic} = await db.query(`INSERT INTO topics (slug, description) VALUES ($1, $2) RETURNING *`, [slug, description])
+            return newTopic[0]
+        } 
+    } catch (err) {
+        throw err
+    }
+}
+
 

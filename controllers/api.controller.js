@@ -1,4 +1,4 @@
-const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle} = require('../models/api.model')
+const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle, insertNewTopic} = require('../models/api.model')
 
 exports.getAllTopics = async (req,res)=>{
     const topics = await selectAllTopics()
@@ -129,6 +129,16 @@ exports.postNewArticle = async (req,res,next)=>{
             res.status(201).send({article})
     }
     catch(err){
+        next(err)
+    }
+}
+
+exports.postNewTopic = async (req,res,next) => {
+    const {slug, description} = req.body
+    try {
+        const newTopic = await insertNewTopic(slug, description)
+        res.status(201).send({topic: newTopic})
+    } catch (err) {
         next(err)
     }
 }
