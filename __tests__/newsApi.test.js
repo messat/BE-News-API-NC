@@ -38,9 +38,9 @@ describe('Core Task 2: GET /api/topics - Topics Endpoint', () => {
              })
             });
 
-    test('Status 405: POST request, invalid http request method displaying an error message', () => {
+    test('Status 405: Delete request, invalid http request method displaying an error message', () => {
       return request(app)
-              .post('/api/topics')
+              .delete('/api/topics')
               .expect(405)
               .then(({body})=>{
                 expect(body.msg).toBe('405 Method Not Allowed')
@@ -795,6 +795,52 @@ describe('ADVANCED Task 20: GET request /api/articles - pagination', () => {
 }); 
 
 
+
+describe('ADVANCED Task 22: POST request /api/topics', () => {
+  test('Status 201: Adds a new topic to the topics table', () => {
+    const newTopic = {
+      slug: "apple",
+      description: "Be careful, the apple could be poisoned"
+    }
+    return request(app)
+      .post('/api/topics')
+      .send(newTopic)
+      .expect(201)
+      .then(({body})=>{
+        const { topic } = body
+        expect(topic).toEqual({
+          slug: "apple",
+          description: "Be careful, the apple could be poisoned"
+        })
+      })
+  });
+
+  test('Status 400: The request body does not contain slug', () => {
+    const newTopic = {
+      description: "Ferrari is going to win F1"
+    }
+    return request(app)
+      .post('/api/topics')
+      .send(newTopic)
+      .expect(400)
+      .then(({body})=>{
+        expect(body.msg).toBe("400 Bad Request: A required field is missing or null.")
+      })
+  });
+
+  test('Status 400: The request body does not contain description', () => {
+    const newTopic = {
+      slug: "cars"
+    }
+    return request(app)
+      .post('/api/topics')
+      .send(newTopic)
+      .expect(400)
+      .then(({body})=>{
+        expect(body.msg).toBe("400 Bad Request: A required field is missing or null.")
+      })
+  });
+});
 
 
  
