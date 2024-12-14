@@ -79,7 +79,7 @@ exports.updateArticleById = async (req,res,next)=>{
     }
 }
 
-exports.getCommentById = async (req,res,next)=>{
+exports.deleteComment = async (req,res,next)=>{
     const {comment_id} = req.params
     try {
         await deleteCommentById(comment_id)
@@ -103,12 +103,12 @@ exports.getAllUsers = async (req,res,next)=>{
 exports.getByUserName = async (req,res,next)=>{
     const {username} = req.params
     try {
-    const user = await selectByUserName(username)
+        const user = await selectByUserName(username)
         res.status(200).send({user})
         }
     catch (err){
-     next(err)
-        }
+        next(err)
+    }
 }
 
 exports.updateVotesByCommentId = async (req,res,next)=>{
@@ -119,7 +119,7 @@ exports.updateVotesByCommentId = async (req,res,next)=>{
         res.status(200).send({comment})
     }
     catch(err){
-     next(err)
+        next(err)
     }
 }
 

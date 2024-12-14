@@ -1,6 +1,6 @@
 const db = require('../db/connection.js');
 const fs = require('fs/promises')
-const {queryArticleId} = require("./checkExists.model.js")
+const {queryArticleId, queryCommentId} = require("./checkExists.model.js")
 
 const {checkQueryExists} = require('./checkExists.model.js');
 
@@ -96,56 +96,58 @@ exports.updateVotesByArticleId = async (article_id, inc_votes)=>{
 
 
 exports.deleteCommentById = async (comment_id)=>{
-        const checkCommentId = await db.query(`SELECT * FROM comments WHERE comment_id = $1`, [comment_id])
-        const filterCommentsById = checkCommentId.rows
-        if(filterCommentsById.length){
-         await db.query(`DELETE FROM comments WHERE comment_id = $1`, [comment_id])
+    try {
+        const checkCommentId = await queryCommentId(comment_id)
+        if(checkCommentId.length){
+            await db.query(`DELETE FROM comments WHERE comment_id = $1`, [comment_id])
         } else {
-            return Promise.reject({status: 404, msg: '404 ID does not exist'})
-        }
+            return Promise.reject({status: 404, msg: '404 Route Not Found'})
+        } 
+    } catch (err) {
+        throw err
+    }
 }
 
 exports.selectAllUsers = async ()=>{
-    const data = await db.query('SELECT * FROM users');
-    return data.rows;
+    const {rows: users} = await db.query('SELECT * FROM users');
+    return users
 }
 
 exports.selectByUserName =  async (username)=>{
-   let sqlString = 'SELECT * FROM users WHERE username = $1;'
-   const queryValue = [username]
-   const {rows} = await db.query(sqlString, queryValue)
-    if(!rows.length){
-        return Promise.reject({status: 404, msg: '404 Not Found'})
-    } 
-    return rows
+    try {
+        let sqlString = 'SELECT * FROM users WHERE username = $1;'
+        const queryValue = [username]
+        const {rows: userDetails} = await db.query(sqlString, queryValue)
+        if(!userDetails.length){
+             return Promise.reject({status: 404, msg: '404 Route Not Found'})
+        } 
+        return userDetails
+    } catch (err) {
+        throw err
+    }
 }
 
 exports.updateComment = async (comment_id, inc_votes)=>{
    if(comment_id){
-    const {rows} = await db.query('SELECT * FROM comments WHERE comment_id = $1', [comment_id])
-        const filterCommentById = rows.length
-        if(filterCommentById){
+    const {rows: commentFilter} = await db.query('SELECT * FROM comments WHERE comment_id = $1', [comment_id])
+        if(commentFilter.length){
             if(typeof inc_votes === 'number'){
-                const updateVotes = await db.query(`UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *`, [inc_votes, comment_id])
-                return updateVotes.rows[0]
+                const {rows: updateVotes} = await db.query(`UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *`, [inc_votes, comment_id])
+                return updateVotes[0]
             } else {
                 return Promise.reject({status: 400, msg: '400 Bad Request'})
             }
         } else {
-            return Promise.reject({status: 404, msg: '404 Not Found'})
+            return Promise.reject({status: 404, msg: '404 Route Not Found'})
         }
-}
+    }
 }
 
 exports.addNewArticle = async (author, title, body, topic, article_img_url)=>{
     const insertPost = await db.query(`INSERT INTO articles (title, topic, author, body, article_img_url) VALUES ( $1, $2, $3,$4, $5) RETURNING *`, [title, topic, author, body, article_img_url])
-    const { rows } = await db.query('SELECT articles.author, articles.title, articles.body, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, CAST (COUNT(comments.article_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id')
-    const postArticle = rows.filter((article)=>{
-        if(article.body === body){
-           return article;
-            }
-        })
-       return postArticle[0]
+    const { rows: allArticles } = await db.query('SELECT articles.author, articles.title, articles.body, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, CAST (COUNT(comments.article_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id')
+    const newArticleFinder = allArticles.filter( article => article.body === body)
+    return newArticleFinder[0]
 }
 
 

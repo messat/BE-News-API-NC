@@ -27,6 +27,7 @@ describe('Core Task 2: GET /api/topics - Topics Endpoint', () => {
                 }) 
                })
     });
+
     test('Status 404: GET request with an invalid API endpoint shows an error message', () => {
       return request(app)
              .get('/api/toppic')
@@ -35,6 +36,7 @@ describe('Core Task 2: GET /api/topics - Topics Endpoint', () => {
                expect(body.msg).toBe('404 Route Not Found')
              })
             });
+
     test('Status 405: POST request, invalid http request method displaying an error message', () => {
       return request(app)
               .post('/api/topics')
@@ -78,6 +80,7 @@ describe('CORE Task 4: GET request /api/articles/:article_id', () => {
                 })
                })
     });
+
     test('Status 404: GET request to an article ID endpoint that is invalid displays an error message', () => {
         return request(app)
                .get('/api/articles/800')
@@ -86,6 +89,7 @@ describe('CORE Task 4: GET request /api/articles/:article_id', () => {
                 expect(body.msg).toBe('404 Route Not Found')
                })
     });
+
     test('Status 400: GET request when passed with invalid parametric endpoint that does not match the numeric data type conveys an error message', () => {
         return request(app)
                .get('/api/articles/banana')
@@ -143,6 +147,7 @@ describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
             expect(commentsIdArray).toBeSortedBy('created_at', {descending: true})
            })
   });
+
   test('Status 200: GET request responds with an empty array - the article ID exists in the articles table but not in the comments table', () => {
     return request(app)
            .get('/api/articles/2/comments')
@@ -152,6 +157,7 @@ describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
             expect(commentsIdArray).toEqual([])
            })
   });
+
   test('Status 404: GET request with an article ID that does not exist in the articles table', () => {
     return request(app)
            .get('/api/articles/800/comments')
@@ -160,6 +166,7 @@ describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
             expect(body.msg).toBe('404 Route Not Found')
            })
   });
+
   test('Status 400: GET request to endpoint with invalid non-numeric data type as article ID', () => {
     return request(app)
            .get('/api/articles/not-a-number/comments')
@@ -191,6 +198,7 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
             })
            })
   });
+
   test('Status 201: POST request post the comment despite containing extra properties which are ignored - server side validation', () => {
     const newUser = {
       username: 'butter_bridge',
@@ -207,6 +215,7 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
              expect(body.comment).not.toHaveProperty('origin')
             })
    });
+
   test('Status 400: POST request displays an error message and status code when the body does not have username', () => {
     const newUser = {
     body: 'Nice English Tea'
@@ -219,6 +228,7 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
              expect(body.msg).toBe('400 Bad Request: A required field is missing or null.')
             })
    });
+
    test('Status 404: POST request responds with an error message and status code when article_id does not exist', () => {
     const newUser = {
       username: 'butter_bridge',
@@ -232,6 +242,7 @@ describe('CORE Task 7: POST request /api/articles/:article_id/comments', () => {
              expect(body.msg).toBe("404 Route Not Found")
             })
    });
+
    test('Status 400: POST request responds with an error message and status code when username does not exist', () => {
     const newUser = {
      username: 'Muhammad',
@@ -270,6 +281,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             })
             })
    });
+
    test('Status 200: PATCH request deducts the votes by the article ID', () => {
     const updateVotes = {
       inc_votes : -81 
@@ -292,6 +304,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
             })
             })
    });
+
    test('Status 404: PATCH request responds with an error message when article ID does not exist', () => {
     const updateVotes = {
       inc_votes : 1 
@@ -304,6 +317,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
               expect(body.msg).toBe('404 Route Not Found')
             })
    });
+
    test('Status 400: PATCH request responds with an error message when article ID exist and the incoming request does not contain numeric value in object', () => {
     const updateVotes = {
       inc_votes : 'one'
@@ -316,6 +330,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
               expect(body.msg).toBe('400 Bad Request')
             })
    });
+
    test('Status 400: PATCH request responds with an error message when article ID exist but the object does not follow schema validation', () => {
     const updateVotes = {
       countVotes : 1
@@ -328,6 +343,7 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
               expect(body.msg).toBe('400 Bad Request')
             })
    });
+
    test('Status 400: PATCH request responds with an error message when article ID exist but the incoming request is empty', () => {
     const updateVotes = {}
      return request(app)
@@ -342,25 +358,27 @@ describe('CORE Task 8: PATCH request /api/articles/:article_id', () => {
 
 
 describe('CORE Task 9: DELETE request /api/comments/:comment_id', () => {
-    test('Status 204: DELETE request to delete the comment by given comment_id and sends no body back', () => {
+    test('Status 204: DELETE request to delete the comment by comment ID without response body', () => {
       return request(app)
             .delete('/api/comments/1')
             .expect(204)
     });
-    test('Status 404: DELETE request responds with an appropriate status and error message when given a non-existent id', () => {
+
+    test('Status 404: DELETE request responds with an error message when given a non-existent comment ID', () => {
       return request(app)
             .delete('/api/comments/786')
             .expect(404)
             .then(({body})=>{
-              expect(body.msg).toBe('404 ID does not exist')
+              expect(body.msg).toBe('404 Route Not Found')
             })
     });
-    test('Status 400: DELETE request responds with an appropriate status and error message when requested with an invalid data type', () => {
+
+    test('Status 400: DELETE request responds with an error message when requested with an invalid non-numeric parametric endpoint', () => {
       return request(app)
         .delete('/api/comments/not-a-number')
         .expect(400)
         .then(({body}) => {
-          expect(body.msg).toBe('400 Invalid Input');
+          expect(body.msg).toBe('400 Invalid text input: Expected numeric value.');
         });
       })
 });
@@ -371,7 +389,7 @@ describe('CORE Task 10: GET request /api/users', () => {
           .get('/api/users')
           .expect(200)
           .then(({body})=>{
-           const usersArray = body.users
+           const {users: usersArray} = body
            expect(usersArray).toHaveLength(4)
            usersArray.forEach((user)=>{
             expect(user).toMatchObject({
@@ -382,7 +400,8 @@ describe('CORE Task 10: GET request /api/users', () => {
            })
           })
   });
-  test('Status 404: GET request with an endpoint /api/user misspelt results in error message', () => {
+
+  test('Status 404: GET request with API endpoint missspelt results in error message', () => {
     return request(app)
            .get('/api/user')
            .expect(404)
@@ -398,18 +417,19 @@ describe('CORE Task 11: GET request /api/articles?topic=mitch using query string
     .get('/api/articles?topic=mitch')
     .expect(200)
     .then(({body})=>{
-      const topicsArr = body.articles
+      const {articles: topicsArr} = body
      topicsArr.forEach((topic)=>{
       expect(topic).toHaveProperty('topic', 'mitch')
      })
     })
   });
+
   test('Status 200: GET request fetches all the articles in the array when the query is omitted', () => {
     return request(app)
     .get('/api/articles')
     .expect(200)
     .then(({body})=>{
-      const articlesArr = body.articles
+      const {articles: articlesArr} = body
      expect(articlesArr).toHaveLength(13)
     })
   });
@@ -419,16 +439,17 @@ describe('CORE Task 11: GET request /api/articles?topic=mitch using query string
     .get('/api/articles?topic=paper')
     .expect(200)
     .then(({body})=>{
-      const articlesArr = body.articles
+      const {articles: articlesArr} = body
      expect(articlesArr).toEqual([])
     })
   });
+
   test('Status 404: GET request with a query string that does not match the searched property and does not exist in the topics table', () => {
     return request(app)
     .get('/api/articles?topic=dogs')
     .expect(404)
     .then(({body})=>{
-     expect(body.msg).toBe('404 Not Found')
+     expect(body.msg).toBe('404 Route Not Found')
     })
   });
   
@@ -437,7 +458,7 @@ describe('CORE Task 11: GET request /api/articles?topic=mitch using query string
     .get('/api/articles?topicss=mitch')
     .expect(200)
     .then(({body})=>{
-      const topicsArr = body.articles
+      const {articles: topicsArr} = body
       expect(topicsArr).toHaveLength(13)
     })
   });
@@ -449,7 +470,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
     .get('/api/articles/1')
     .expect(200)
     .then(({body})=>{
-      const articleObj = body.article
+      const {article: articleObj} = body
       expect(articleObj.article_id).toBe(1)
       expect(articleObj).toMatchObject({
           author: expect.any(String),
@@ -478,35 +499,35 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
  })
  
 
- describe('ADAVNCED Task 15: GET  request /api/articles', () => {
-     test('Status 200: GET request using query to sort_by the articles', () => {
+ describe('ADAVNCED Task 15: GET  request /api/articles using query strings', () => {
+     test('Status 200: GET request using query "sort by" the articles', () => {
       return request(app)
             .get('/api/articles?sort_by=author')
             .expect(200)
             .then(({body})=>{
-            const articlesArr = body.articles
+            const {articles: articlesArr} = body
             expect(articlesArr).toBeSortedBy('author', {
               descending: true
             })
     })
      });
-     test('Status 200: GET request using two queries to sort_by & order the articles', () => {
+     test('Status 200: GET request using two queries to "sort_by" & "order" the articles', () => {
       return request(app)
             .get('/api/articles?sort_by=title&order=asc')
             .expect(200)
             .then(({body})=>{
-            const articlesArr = body.articles
+            const {articles: articlesArr} = body
             expect(articlesArr).toBeSortedBy('title', {
               ascending: true
             })
     })
      });
-     test('Status 200: GET request using only the order to ascend the articles by the default created_at property', () => {
+     test('Status 200: GET request using order query to ascend the articles by the default created_at property', () => {
       return request(app)
             .get('/api/articles?order=ASC')
             .expect(200)
             .then(({body})=>{
-            const articlesArr = body.articles
+            const {articles: articlesArr} = body
             expect(articlesArr).toBeSortedBy('created_at', {
               ascending: true
             })
@@ -517,18 +538,19 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             .get('/api/articles?order=ASC&sort_by=body&topic=mitch')
             .expect(200)
             .then(({body})=>{
-            const articlesArr = body.articles
+            const {articles: articlesArr} = body
             expect(articlesArr).toBeSortedBy('body', {
               ascending: true
             })
     })
      });
-     test('Status 404: GET request with one valid query and the other invalid i.e. topic returns an error message', () => {
+
+     test('Status 404: GET request with one valid query and the other invalid i.e. topic does not exist', () => {
       return request(app)
             .get('/api/articles?order=ASC&topic=mites')
             .expect(404)
             .then(({body})=>{
-            expect(body.msg).toBe('404 Not Found')
+            expect(body.msg).toBe('404 Route Not Found')
     })
      });
     
@@ -549,7 +571,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
       .get('/api/users/icellusedkars')
       .expect(200)
       .then(({body})=>{
-      const userArr =body.user
+      const {user: userArr} =body
       expect(userArr).toHaveLength(1)
       userArr.forEach((user)=>{
         expect(user).toMatchObject({
@@ -565,13 +587,13 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
       .get('/api/users/Muhammad')
       .expect(404)
       .then(({body})=>{
-      expect(body.msg).toBe('404 Not Found')
+      expect(body.msg).toBe('404 Route Not Found')
       })
      });
  });
 
  describe('ADAVNCED Task 18: PATCH request /api/comments/:comment_id', () => {
-     test('Status 200: PATCH request updates the vote count by the given body request', () => {
+     test('Status 200: PATCH request updates the vote count on comment ID by incoming request body', () => {
       const addVotes = { inc_votes: 5 }
       return request(app)
       .patch('/api/comments/3')
@@ -601,14 +623,14 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
         expect(body.msg).toBe('400 Bad Request')
       })
      });
-     test('Status 404: PATCH request comment_id does not exist', () => {
+     test('Status 404: PATCH request comment ID does not exist', () => {
       const addVotes = { inc_votes: 1 }
       return request(app)
       .patch('/api/comments/700')
       .send(addVotes)
       .expect(404)
       .then(({body})=>{
-        expect(body.msg).toBe('404 Not Found')
+        expect(body.msg).toBe('404 Route Not Found')
       })
      });
  });
@@ -628,7 +650,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             .send(newArticle)
             .expect(201)
             .then(({body})=>{
-            const articleIdObj = body.article
+            const {article: articleIdObj} = body
              expect(articleIdObj).toMatchObject({
               article_id: 14,
               title: 'Wolf of Apple',
@@ -642,19 +664,19 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
             })
    });
-   test('Status 201: POST request to post an article when the user has not provided an image URL which has default value', () => {
+   test('Status 201: POST request successfully post an article when the user has not provided an image URL which has default value', () => {
     const newArticle = {
       author: 'lurker',
       title: 'The economic crash',
       body: 'The world did not see this one coming', 
-      topic: 'paper',
+      topic: 'paper'
     }
     return request(app)
             .post('/api/articles')
             .send(newArticle)
             .expect(201)
             .then(({body})=>{
-            const articleIdObj = body.article
+            const {article: articleIdObj} = body
              expect(articleIdObj).toMatchObject({
               article_id: 14,
               title: 'The economic crash',
@@ -669,7 +691,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
 
    });
-   test('Status 400: POST request displays an error message and status code when the body does not fulfill the criteria of articles table', () => {
+   test('Status 400: POST request displays an error message when the body does not fulfill the criteria of articles table', () => {
     const newArticle = {
       title: 'Wolf of Apple',
       body: 'If there is iota of goodness, then act up on it', 
@@ -680,13 +702,13 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             .send(newArticle)
             .expect(400)
             .then(({body})=>{
-             expect(body.msg).toBe('400 Invalid Input')
+             expect(body.msg).toBe('400 Bad Request: A required field is missing or null.')
             })
    });
-   test('Status 400: POST request responds with an error message and status code when author violates the key constraint', () => {
+   test('Status 400: POST request responds with an error message when author violates the key constraint i.e author does not exist in users table', () => {
     const newArticle = {
       author: 'Muhammad',
-      title: 'Wolf of Apple',
+      title: 'Apple is household brand',
       body: 'If there is iota of goodness, then act up on it', 
       topic: 'paper',
       article_img_url: 'https://www.tradingview.com/symbols/NASDAQ-AAPL/' 
@@ -696,17 +718,17 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             .send(newArticle)
             .expect(400)
             .then(({body})=>{
-            expect(body.msg).toBe('400 Invalid Input')
+            expect(body.msg).toBe('400 Bad Request: Enter a valid author(username).')
             })
    });
-   test('Status 400: POST request responds with an error message and status code when passed an empty object', () => {
+   test('Status 400: POST request responds with an error message when passed an empty request body', () => {
     const newArticle = {}
      return request(app)
             .post('/api/articles')
             .send(newArticle)
             .expect(400)
             .then(({body})=>{
-             expect(body.msg).toBe('400 Invalid Input')
+             expect(body.msg).toBe('400 Bad Request: A required field is missing or null.')
             })
    });
   });
