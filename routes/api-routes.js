@@ -1,9 +1,9 @@
 const express = require('express')
 const apiRouter = express.Router()
-const { getAllEndpoints } = require('../controllers/api.controller')
+const { endpointDocumentation } = require('../controllers/api.controller')
 
 apiRouter
-        .get('/', getAllEndpoints)
+        .get('/', endpointDocumentation)
 
 
 module.exports = apiRouter

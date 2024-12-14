@@ -1,22 +1,20 @@
 const {selectAllTopics, selectAllEndpoints, selectArticleById, selectAllArticles,selectCommentsByArticleId, insertNewComment,updateVotesByArticleId, deleteCommentById, selectAllUsers, selectByUserName, updateComment, addNewArticle} = require('../models/api.model')
 
 exports.getAllTopics = async (req,res)=>{
-   const topics = await selectAllTopics()
+    const topics = await selectAllTopics()
     res.status(200).send({topics})
 }
 
 exports.noEndpoint = (req,res)=>{
-    res.status(404).send({msg: '404 Route Not Found'})
+    if (req.method !== "GET"){
+        res.status(405).send({msg: "405 Method Not Allowed"})
+    }
+    res.status(404).send({msg: "404 Route Not Found"})
 }
 
-exports.getAllEndpoints = async (req,res, next)=>{
-    try {
-        const endpoints = await selectAllEndpoints()
-        res.status(200).send({endpoints})
-    }
-    catch (err) {
-        next(err)
-    }
+exports.endpointDocumentation = async (req,res, next)=>{
+    const endpoints = await selectAllEndpoints()
+    res.status(200).send({endpoints})    
 }
 
 exports.getArticleById = async (req,res, next)=>{
@@ -31,14 +29,14 @@ exports.getArticleById = async (req,res, next)=>{
 }
 
 exports.getAllArticles = async (req, res, next)=>{ 
-    const {topic, sort_by, order} = req.query
+    const {topic, sort_by, order, limit, p} = req.query
     const arrOfKeysQuery = Object.keys(req.query)
     try {
-        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery)
+        const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery, limit, p)
         if(articles.status){
             res.status(articles.status).send(articles)
         }
-            res.status(200).send({articles})
+        res.status(200).send({articles})
     }
     catch (err) {
         next(err)
@@ -48,8 +46,8 @@ exports.getAllArticles = async (req, res, next)=>{
 exports.getCommentsByArticleId = async (req,res,next)=>{
     const {article_id}= req.params
     try {
-    const comments = await selectCommentsByArticleId(article_id)
-         res.status(200).send({comments})
+        const comments = await selectCommentsByArticleId(article_id)
+        res.status(200).send({comments})
     }
     catch (err){
         next(err)
@@ -60,15 +58,15 @@ exports.postCommentByArticleId = async (req,res,next)=>{
     const {article_id}= req.params
     const {username, body} = req.body
     try {
-      const comment = await insertNewComment(article_id, username, body)
-         res.status(201).send({comment})
+        const comment = await insertNewComment(article_id, username, body)
+        res.status(201).send({comment})
     }
      catch (err){
         next(err)
     }
 }
 
-exports.fetchArticleById = async (req,res,next)=>{
+exports.updateArticleById = async (req,res,next)=>{
     const {article_id}= req.params
     const {inc_votes} = req.body
     try {
@@ -80,7 +78,7 @@ exports.fetchArticleById = async (req,res,next)=>{
     }
 }
 
-exports.getCommentById = async (req,res,next)=>{
+exports.deleteComment = async (req,res,next)=>{
     const {comment_id} = req.params
     try {
         await deleteCommentById(comment_id)
@@ -104,12 +102,12 @@ exports.getAllUsers = async (req,res,next)=>{
 exports.getByUserName = async (req,res,next)=>{
     const {username} = req.params
     try {
-    const user = await selectByUserName(username)
+        const user = await selectByUserName(username)
         res.status(200).send({user})
         }
     catch (err){
-     next(err)
-        }
+        next(err)
+    }
 }
 
 exports.updateVotesByCommentId = async (req,res,next)=>{
@@ -117,10 +115,10 @@ exports.updateVotesByCommentId = async (req,res,next)=>{
     const {inc_votes} = req.body
     try {
         const comment = await updateComment(comment_id, inc_votes)
-            res.status(200).send({comment})
+        res.status(200).send({comment})
     }
     catch(err){
-     next(err)
+        next(err)
     }
 }
 
@@ -131,7 +129,6 @@ exports.postNewArticle = async (req,res,next)=>{
             res.status(201).send({article})
     }
     catch(err){
-        console.log(err)
         next(err)
     }
 }

@@ -27,10 +27,10 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "Responds with a single object from the requested article_id of an array",
+    "description": "Responds with a single object representing single article",
     "queries": [],
     "exampleResponse" : {
-      "articles": [
+      "articles": 
         {
           "article_id": 1,
           "title": "Living in the shadow of a great man",
@@ -42,11 +42,10 @@
           "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
            "comment_count": 5
         }
-      ]
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "Responds with array of objects listing all the comments with associated article ID",
+    "description": "Responds with array of objects listing all the comments associated with the article ID",
     "queries": [],
     "exampleResponse" : {
       "comments": [
