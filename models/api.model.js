@@ -33,15 +33,15 @@ exports.selectArticleById = async (article_id)=>{
 
 
 
-exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery)=>{
-    if(topic || sort_by || order){
-        return checkQueryExists(topic, sort_by, order, arrOfKeysQuery)
+exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery, limit, p)=>{
+    if(topic || sort_by || order || limit){
+        return checkQueryExists(topic, sort_by, order, arrOfKeysQuery, limit, p)
     } 
     else {
         const {rows: allArticles} = await db.query('SELECT articles.author, articles.title, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, CAST (COUNT(comments.article_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC;')
         return allArticles
     }
-    }
+}
 
 
 exports.selectCommentsByArticleId =  async (article_id)=>{
@@ -144,7 +144,7 @@ exports.updateComment = async (comment_id, inc_votes)=>{
 }
 
 exports.addNewArticle = async (author, title, body, topic, article_img_url)=>{
-    const insertPost = await db.query(`INSERT INTO articles (title, topic, author, body, article_img_url) VALUES ( $1, $2, $3,$4, $5) RETURNING *`, [title, topic, author, body, article_img_url])
+    await db.query(`INSERT INTO articles (title, topic, author, body, article_img_url) VALUES ( $1, $2, $3,$4, $5) RETURNING *`, [title, topic, author, body, article_img_url])
     const { rows: allArticles } = await db.query('SELECT articles.author, articles.title, articles.body, articles.article_id, articles.topic,articles.created_at,articles.votes,articles.article_img_url, CAST (COUNT(comments.article_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id')
     const newArticleFinder = allArticles.filter( article => article.body === body)
     return newArticleFinder[0]

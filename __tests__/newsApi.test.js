@@ -4,6 +4,7 @@ const app = require('../app')
 const seed = require('../db/seeds/seed')
 const data = require('../db/data/test-data/index')
 const endpointJson = require('../endpoints.json')
+const articles = require('../db/data/test-data/articles')
 
 beforeEach(()=>{
     return seed(data)
@@ -511,6 +512,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
     })
      });
+
      test('Status 200: GET request using two queries to "sort_by" & "order" the articles', () => {
       return request(app)
             .get('/api/articles?sort_by=title&order=asc')
@@ -582,6 +584,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
       })
 })
      });
+
      test('Status 404: GET request - the user is not found', () => {
       return request(app)
       .get('/api/users/Muhammad')
@@ -594,25 +597,27 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
 
  describe('ADAVNCED Task 18: PATCH request /api/comments/:comment_id', () => {
      test('Status 200: PATCH request updates the vote count on comment ID by incoming request body', () => {
-      const addVotes = { inc_votes: 5 }
+      const addVotes = { inc_votes: 1 }
       return request(app)
       .patch('/api/comments/3')
       .send(addVotes)
       .expect(200)
       .then(({body})=>{
-        expect(body.comment.votes).toBe(105)
+        expect(body.comment.votes).toBe(101)
       })
      });
+
      test('Status 200: PATCH request deducts the votes', () => {
-      const deductsVotes = { inc_votes: -400 }
+      const deductsVotes = { inc_votes: -1 }
       return request(app)
       .patch('/api/comments/3')
       .send(deductsVotes)
       .expect(200)
       .then(({body})=>{
-        expect(body.comment.votes).toBe(-300)
+        expect(body.comment.votes).toBe(99)
       })
      });
+
      test('Status 400: PATCH request does not follow the schema validation - string', () => {
       const addVotes = { inc_votes: 'hello' }
       return request(app)
@@ -623,6 +628,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
         expect(body.msg).toBe('400 Bad Request')
       })
      });
+
      test('Status 404: PATCH request comment ID does not exist', () => {
       const addVotes = { inc_votes: 1 }
       return request(app)
@@ -664,6 +670,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
             })
    });
+
    test('Status 201: POST request successfully post an article when the user has not provided an image URL which has default value', () => {
     const newArticle = {
       author: 'lurker',
@@ -691,6 +698,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
 
    });
+
    test('Status 400: POST request displays an error message when the body does not fulfill the criteria of articles table', () => {
     const newArticle = {
       title: 'Wolf of Apple',
@@ -705,6 +713,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
              expect(body.msg).toBe('400 Bad Request: A required field is missing or null.')
             })
    });
+
    test('Status 400: POST request responds with an error message when author violates the key constraint i.e author does not exist in users table', () => {
     const newArticle = {
       author: 'Muhammad',
@@ -721,6 +730,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             expect(body.msg).toBe('400 Bad Request: Enter a valid author(username).')
             })
    });
+
    test('Status 400: POST request responds with an error message when passed an empty request body', () => {
     const newArticle = {}
      return request(app)
@@ -732,6 +742,59 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             })
    });
   });
+
+describe('ADVANCED Task 20: GET request /api/articles - pagination', () => {
+  test('Status 200: GET request paginating the articles with limit', () => {
+    return request(app)
+      .get('/api/articles?limit=8')
+      .expect(200)
+      .then(({body})=>{
+        const {articles: articlePaginated} = body
+        expect(articlePaginated).toHaveLength(8)
+      })
+  });
+
+  test('Status 200: GET request paginating the articles with limit with page number', () => {
+    return request(app)
+      .get('/api/articles?limit=10&p=2')
+      .expect(200)
+      .then(({body})=>{
+        const {articles: articlePaginated} = body
+        expect(articlePaginated).toHaveLength(3)
+      })
+  });
+
+  test('Status 200: Returns an empty array if page exceeds data size', () => {
+    return request(app)
+      .get('/api/articles?limit=2&p=100')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toEqual([]);
+      });
+  });
+
+  test('Status 400: Invalid limit value returns an error', () => {
+    return request(app)
+      .get('/api/articles?limit=not-a-number')
+      .expect(400)
+      .then(({body})=>{
+        expect(body.msg).toBe("400 Bad Request")
+      })
+  });
+
+  test('Status 400: Invalid page value returns an error', () => {
+    return request(app)
+      .get('/api/articles?limit=10&p=apple')
+      .expect(400)
+      .then(({body})=>{
+        expect(body.msg).toBe("400 Bad Request")
+      })
+  });
+
+}); 
+
+
 
 
  

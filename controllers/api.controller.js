@@ -29,8 +29,7 @@ exports.getArticleById = async (req,res, next)=>{
 }
 
 exports.getAllArticles = async (req, res, next)=>{ 
-    const {topic, sort_by, order} = req.query
-    const {limit, p} = req.query
+    const {topic, sort_by, order, limit, p} = req.query
     const arrOfKeysQuery = Object.keys(req.query)
     try {
         const articles = await selectAllArticles(topic, sort_by, order, arrOfKeysQuery, limit, p)
