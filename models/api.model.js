@@ -161,4 +161,15 @@ exports.insertNewTopic = async (slug, description) => {
     }
 }
 
+exports.deleteSingleArticle = async (article_id) => {
+    try {
+        const article = await queryArticleId(article_id)
+        if(article.length) {
+            await db.query(`DELETE FROM Comments WHERE article_id = $1`, [article_id])
+            await db.query(`DELETE FROM Articles WHERE article_id = $1`, [article_id])
+        } 
+    } catch (err) {
+        throw(err)
+    }
+}
 

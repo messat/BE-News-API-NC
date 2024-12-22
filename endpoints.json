@@ -44,6 +44,10 @@
         }
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes the article corresponding to the article ID and all comments associated with this article",
+    "queries": []
+  },
   "GET /api/articles/:article_id/comments": {
     "description": "Responds with array of objects listing all the comments associated with the article ID",
     "queries": [],
