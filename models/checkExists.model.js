@@ -8,41 +8,41 @@ exports.checkQueryExists = async (topic, sort_by = 'created_at', order = 'DESC',
       const fieldProperties = Object.keys(fieldNames[0])
       let sqlString = 'SELECT * FROM articles'
       const queryValues = []
-
       let countQuery = 'SELECT COUNT(*) AS total_count FROM articles'
-
-      if (arrOfKeysQuery.includes('topic') || arrOfKeysQuery.includes('sort_by') || arrOfKeysQuery.includes('order')){
-         if(topic){
+      if (arrOfKeysQuery.includes('topic') || topic){
             const { rows:checkTopic } = await db.query(`SELECT * FROM topics WHERE slug = $1`, [topic])
             if(!checkTopic.length){
                return Promise.reject({status: 404, msg: '404 Route Not Found'})
             } 
             queryValues.push(topic)
             sqlString+=' WHERE topic = $1'
-         } 
-         if(sort_by){
-            if(!fieldProperties.includes(sort_by)){
-               return Promise.reject({status: 400, msg: '400 Bad Request'})
-            }
+      }
+
+      if(arrOfKeysQuery.includes('sort_by') || sort_by){
+         if(!fieldProperties.includes(sort_by)){
+            return Promise.reject({status: 400, msg: '400 Bad Request'})
+         }
             sqlString+=` ORDER BY ${sort_by}`
-         } 
-         if(order){
-            if(!orderKeywords.includes(order)){
-               return Promise.reject({status: 400, msg: '400 Bad Request'})
-            }
-            sqlString+= ` ${order}`
-         } 
+      }
+
+      if(arrOfKeysQuery.includes('order') || order){
+         if(!orderKeywords.includes(order)){
+            return Promise.reject({status: 400, msg: '400 Bad Request'})
+         }
+         sqlString+= ` ${order}`
       } 
-      if(!isNaN(limit)){
-         sqlString+=` LIMIT ${limit}`
-      } else {
+
+      if(isNaN(limit) || parseInt(limit) < 1){
          return Promise.reject({status: 400, msg: '400 Bad Request'})
       }
-      if(!isNaN(p) && !isNaN(limit)) {
+      sqlString+=` LIMIT ${limit}`
+
+      if(p){
+         if(isNaN(p) || parseInt(p) < 1) {
+            return Promise.reject({status: 400, msg: '400 Bad Request'})
+         }
          p = (p - 1) * (limit)
          sqlString+=` OFFSET ${p}`
-      } else if (p) {
-         return Promise.reject({status: 400, msg: '400 Bad Request'})
       }
       sqlString+=';'
       const {rows: paginatedArticles} = await db.query(sqlString, queryValues)
