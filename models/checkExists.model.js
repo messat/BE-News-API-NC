@@ -1,12 +1,11 @@
 const db = require('../db/connection.js');
 
 
-exports.checkQueryExists = async (topic, sort_by = 'created_at', order= 'DESC', arrOfKeysQuery, limit="10", p)=>{
+exports.checkQueryExists = async (topic, sort_by = 'created_at', order = 'DESC', arrOfKeysQuery, limit = 10, p)=>{
    try {
       const orderKeywords = ['asc', 'desc', 'DESC', 'ASC']
       const {rows: fieldNames} = await db.query(`Select * FROM articles`)
       const fieldProperties = Object.keys(fieldNames[0])
-
       let sqlString = 'SELECT * FROM articles'
       const queryValues = []
 
@@ -34,13 +33,13 @@ exports.checkQueryExists = async (topic, sort_by = 'created_at', order= 'DESC', 
             sqlString+= ` ${order}`
          } 
       } 
-      if(!isNaN(parseInt(limit)) && parseInt(limit) >0){
+      if(!isNaN(limit)){
          sqlString+=` LIMIT ${limit}`
       } else {
          return Promise.reject({status: 400, msg: '400 Bad Request'})
       }
-      if(!isNaN(parseInt(p)) && parseInt(p)>0) {
-         p = ((parseInt(p) - 1) * parseInt(limit)).toString()
+      if(!isNaN(p) && !isNaN(limit)) {
+         p = (p - 1) * (limit)
          sqlString+=` OFFSET ${p}`
       } else if (p) {
          return Promise.reject({status: 400, msg: '400 Bad Request'})

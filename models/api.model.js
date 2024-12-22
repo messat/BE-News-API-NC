@@ -34,7 +34,7 @@ exports.selectArticleById = async (article_id)=>{
 
 
 exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery, limit, p)=>{
-    if(topic || sort_by || order || limit){
+    if(topic || sort_by || order || limit || p){
         return checkQueryExists(topic, sort_by, order, arrOfKeysQuery, limit, p)
     } 
     else {
@@ -44,7 +44,7 @@ exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery, limit,
 }
 
 
-exports.selectCommentsByArticleId =  async (article_id, limit, p)=>{
+exports.selectCommentsByArticleId =  async (article_id, limit = 10, p)=>{
     let commentQry = 'SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC'
     if(!isNaN(limit)){
         commentQry += ` LIMIT ${limit}`
