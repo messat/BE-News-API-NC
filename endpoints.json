@@ -49,8 +49,8 @@
     "queries": []
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "Responds with array of objects listing all the comments associated with the article ID",
-    "queries": [],
+    "description": "Responds with array of objects listing all the comments associated with the article ID (use the queries the to paginate the comments)",
+    "queries": ["limit", "p"],
     "exampleResponse" : {
       "comments": [
         {

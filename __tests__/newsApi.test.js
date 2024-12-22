@@ -134,7 +134,7 @@ describe('CORE Task 6: GET request /api/articles/:article_id/comments', () => {
            .expect(200)
            .then(({body})=>{
             const {comments: commentsIdArray} = body
-            expect(commentsIdArray).toHaveLength(11)
+            expect(commentsIdArray).toHaveLength(10)
             commentsIdArray.forEach((comment)=>{
               expect(comment).toMatchObject({
                 comment_id: expect.any(Number),
@@ -793,6 +793,58 @@ describe('ADVANCED Task 20: GET request /api/articles - pagination', () => {
   });
 
 }); 
+
+describe('ADVANCED Task 21: GET /api/articles/:article_id/comments', () => {
+  test('Status 200: Limits the number of comments associated with article ID using query string', () => {
+    return request(app)
+      .get('/api/articles/1/comments?limit=5')
+      .expect(200)
+      .then(({body})=>{
+        const { comments } = body
+        expect(comments).toHaveLength(5)
+      })
+  });
+
+  test('Status 200: Paginates comments using \'p\' associated with article ID using query string', () => {
+    return request(app)
+      .get('/api/articles/1/comments?limit=3&p=2')
+      .expect(200)
+      .then(({body})=>{
+        const { comments } = body
+        expect(comments).toHaveLength(3)
+      })
+  });
+
+  test('Status 200: Displays all comments (associated with article ID) when the limit is non-numerical data type', () => {
+    return request(app)
+      .get('/api/articles/1/comments?limit=billion&p=2')
+      .expect(200)
+      .then(({body})=>{
+        const { comments } = body
+        expect(comments).toHaveLength(11)
+      })
+  });
+
+  test('Status 200: Displays all comments when the p is non-numerical data type', () => {
+    return request(app)
+      .get('/api/articles/3/comments?limit=3&p=not-a-number')
+      .expect(200)
+      .then(({body})=>{
+        const { comments } = body
+        expect(comments).toHaveLength(2)
+      })
+  });
+
+  test('Status 200: Displays 10 comments when the page number is stated and limit is omitted ', () => {
+    return request(app)
+      .get('/api/articles/1/comments?p=1')
+      .expect(200)
+      .then(({body})=>{
+        const { comments } = body
+        expect(comments).toHaveLength(10)
+      })
+  });
+});
 
 
 
