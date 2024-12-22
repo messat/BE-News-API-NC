@@ -510,7 +510,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
             expect(articlesArr).toBeSortedBy('author', {
               descending: true
             })
-    })
+      })
      });
 
      test('Status 200: GET request using two queries to "sort_by" & "order" the articles', () => {
