@@ -9,8 +9,16 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "Adds a new topic",
+    "queries": [],
+    "post body": {"slug": "finance", "description": "How to manage finance" },
+    "exampleResponse": {
+      "topics": [{ "slug": "finance", "description": "How to manage finance" }]
+    }
+  },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
+    "description": "serves an array of all articles - can use queries to filter search field",
     "queries": ["author", "topic", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
       "articles": [
@@ -44,6 +52,26 @@
         }
     }
   },
+  "PATCH /api/articles/:article_id": {
+    "description": "Updates the vote count of the article requested by article_id",
+    "queries": [],
+    "patch body": { "inc_votes": 1},
+    "exampleResponse" : {
+      "article": [
+        {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "body": "I find this existence challenging",
+          "created_at": "2020-07-09T20:11:00.000Z",
+          "votes": 19,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        }
+      ]
+        }
+      
+    },
   "DELETE /api/articles/:article_id": {
     "description": "Deletes the article corresponding to the article ID and all comments associated with this article",
     "queries": []
@@ -83,28 +111,9 @@
           }
         
       },
-      "PATCH /api/articles/:article_id": {
-        "description": "Updates the vote count of the article requested by article_id",
-        "queries": [],
-        "patch body": { "inc_votes": 1},
-        "exampleResponse" : {
-          "article": [
-            {
-              "article_id": 1,
-              "title": "Living in the shadow of a great man",
-              "topic": "mitch",
-              "author": "butter_bridge",
-              "body": "I find this existence challenging",
-              "created_at": "2020-07-09T20:11:00.000Z",
-              "votes": 19,
-              "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-            }
-          ]
-            }
-          
-        },
+     
         "DELETE /api/comments/:comment_id": {
-          "description": "Deletes the row with the given comment_id in the url and no body is sent back as it is deleted",
+          "description": "Deletes the comment by comment ID (parametric endpoint) and no body is sent back as it is deleted",
           "queries": [] 
           },
           "GET /api/users": {
@@ -136,7 +145,7 @@
                 }
             },
             "GET /api/users/:username": {
-              "description": "Responds with an array of the user information selected by username",
+              "description": "Responds with a user selected by the parametric endpoint(username)",
               "queries": [],
               "exampleResponse" : {
                 "users": [
@@ -149,7 +158,7 @@
                   }
               },
               "PATCH /api/comments/:comment_id": {
-                "description": "Updates the votes by given comment_id",
+                "description": "Updates the comment votes by by parametric endpoint(comment ID)",
                 "queries": [],
                 "patch body": { "inc_votes": 5},
                 "exampleResponse" : {
