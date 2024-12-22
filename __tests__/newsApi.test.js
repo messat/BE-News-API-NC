@@ -12,7 +12,7 @@ beforeEach(()=>{
 
 afterAll(() => db.end())
 
-describe('Core Task 2: GET /api/topics - Topics Endpoint', () => {
+describe('Core Task 2: GET /api/topics', () => {
     test('Status 200: GET request responds with all topics contained in an array', () => {
         return request(app)
                .get('/api/topics')
@@ -743,7 +743,7 @@ describe('CORE Task 12: GET request /api/articles/:article_id', () => {
    });
   });
 
-describe('ADVANCED Task 20: GET request /api/articles - pagination', () => {
+describe('ADVANCED Task 20: GET request /api/articles - Pagination', () => {
   test('Status 200: GET request paginating the articles with limit', () => {
     return request(app)
       .get('/api/articles?limit=8')
@@ -761,6 +761,16 @@ describe('ADVANCED Task 20: GET request /api/articles - pagination', () => {
       .then(({body})=>{
         const {articles: articlePaginated} = body
         expect(articlePaginated).toHaveLength(3)
+      })
+  });
+
+  test('Status 200: GET request paginating the articles with a page number and limit is omitted', () => {
+    return request(app)
+      .get('/api/articles?p=1')
+      .expect(200)
+      .then(({body})=>{
+        const {articles: articlePaginated} = body
+        expect(articlePaginated).toHaveLength(10)
       })
   });
 
@@ -794,7 +804,7 @@ describe('ADVANCED Task 20: GET request /api/articles - pagination', () => {
 
 }); 
 
-describe('ADVANCED Task 21: GET /api/articles/:article_id/comments', () => {
+describe('ADVANCED Task 21: GET /api/articles/:article_id/comments - Pagination', () => {
   test('Status 200: Limits the number of comments associated with article ID using query string', () => {
     return request(app)
       .get('/api/articles/1/comments?limit=5')
