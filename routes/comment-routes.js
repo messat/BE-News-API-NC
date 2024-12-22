@@ -1,5 +1,5 @@
 const express = require('express')
-const { deleteComment, updateVotesByCommentId} = require('../controllers/api.controller')
+const { deleteComment, updateVotesByCommentId} = require('../controllers/comments-controllers')
 const commentRouter = express.Router()
 
 commentRouter

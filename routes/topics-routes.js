@@ -1,5 +1,5 @@
 const express = require('express')
-const { getAllTopics, postNewTopic } = require('../controllers/api.controller')
+const { getAllTopics, postNewTopic } = require('../controllers/topics-controllers')
 const topicRouter = express.Router()
 
 topicRouter
