@@ -1,5 +1,6 @@
 const express = require('express')
-const { getAllArticles, getArticleById, getCommentsByArticleId, postCommentByArticleId, updateArticleById,postNewArticle, deleteArticleById} = require('../controllers/api.controller')
+const { getCommentsByArticleId, postCommentByArticleId } = require('../controllers/comments-controllers')
+const { getArticleById, getAllArticles, updateArticleById, postNewArticle, deleteArticleById } = require('../controllers/articles-controllers')
 const articlesRouter = express.Router()
 
 articlesRouter
