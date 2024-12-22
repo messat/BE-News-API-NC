@@ -843,4 +843,38 @@ describe('ADVANCED Task 22: POST request /api/topics', () => {
 });
 
 
+describe('ADVANCED TASK 23: DELETE request /api/articles/:article_id', () => {
+  test('Status 201: Deletes the relevant article using the parametric endpoint and all the comments associated with this article ID', () => {
+    return request(app)
+      .delete('/api/articles/1')
+      .expect(204)
+  });
+
+  test('Status 201: Deletes the article (when no comments exist for this article) using the parametric endpoint ', () => {
+    return request(app)
+      .delete('/api/articles/2')
+      .expect(204)
+  });
+
+  test('Status 404: Responds with an error message when the article ID does not exist', () => {
+    return request(app)
+      .delete('/api/articles/786')
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("404 Route Not Found")
+      })
+  });
+
+  test('Status 400: Responds with an error message when the article ID is not the correct data type violating PSQL', () => {
+    return request(app)
+      .delete('/api/articles/banana')
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("400 Invalid text input: Expected numeric value.")
+      })
+  });
+  
+});
+
+
  

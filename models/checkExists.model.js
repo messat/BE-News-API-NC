@@ -56,6 +56,9 @@ exports.checkQueryExists = async (topic, sort_by = 'created_at', order= 'DESC', 
 exports.queryArticleId = async (article_id) => {
    try {
       const {rows: checkArticleId} = await db.query('SELECT * FROM articles WHERE article_id = $1', [article_id])
+      if(!checkArticleId.length){
+         return Promise.reject({status: 404, msg: "404 Route Not Found"})
+      }
       return checkArticleId
    }
    catch (err){
