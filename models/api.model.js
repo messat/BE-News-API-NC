@@ -44,8 +44,15 @@ exports.selectAllArticles = async (topic, sort_by, order, arrOfKeysQuery, limit,
 }
 
 
-exports.selectCommentsByArticleId =  async (article_id)=>{
+exports.selectCommentsByArticleId =  async (article_id, limit, p)=>{
     let commentQry = 'SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC'
+    if(!isNaN(limit)){
+        commentQry += ` LIMIT ${limit}`
+    }
+    if(!isNaN(p) && !isNaN(limit)){
+        p = (p - 1) * limit
+        commentQry += ` OFFSET ${p}`
+    }
     try {
         const checkArticleId = await queryArticleId(article_id)
         if(checkArticleId.length){

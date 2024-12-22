@@ -44,9 +44,10 @@ exports.getAllArticles = async (req, res, next)=>{
 }
 
 exports.getCommentsByArticleId = async (req,res,next)=>{
-    const {article_id}= req.params
+    const {article_id} = req.params
+    const { limit = 10, p } = req.query
     try {
-        const comments = await selectCommentsByArticleId(article_id)
+        const comments = await selectCommentsByArticleId(article_id, limit, p)
         res.status(200).send({comments})
     }
     catch (err){
